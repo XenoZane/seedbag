@@ -27,11 +27,8 @@ const WALL_BOUNCE_ATLAS = Vector2i(4, 0)
 
 var initial_world_state: PackedByteArray
 
-var world_state_history: Array[PackedByteArray]
-
 func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
-	world_state_history.push_back(world_tiles.tile_map_data)
 	for coords: Vector2i in entity_tiles.get_used_cells():
 		if entity_tiles.get_cell_atlas_coords(coords) == BAG_ATLAS:
 			bag_coords.push_back(coords)
@@ -150,15 +147,38 @@ func update_entity_visuals() -> void:
 
 func throw_bag(from_coords: Vector2i, dir: Vector2i) -> void:
 	var i: int = 0
+	var target_coords: Vector2i
 	while(true):
 		i += 1
-		var dir_coords = from_coords + dir * i
-		var world_atlas = world_tiles.get_cell_atlas_coords(dir_coords)
+		target_coords = from_coords + dir * i
+		var world_atlas = world_tiles.get_cell_atlas_coords(target_coords)
 		if world_atlas == DIRT_ATLAS:
-			world_tiles.set_cell(dir_coords, 0, DIRT_SEEDED_ATLAS)
+			world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
 		if world_atlas == WALL_ATLAS:
-			bag_coords.push_back(dir_coords - dir)
+			target_coords = bounce_bag(target_coords, -dir, 1)
 			break
 		if world_atlas == WALL_BOUNCE_ATLAS:
-			bag_coords.push_back(dir_coords - dir * 2)
+			target_coords = bounce_bag(target_coords, -dir, 2)
 			break
+	
+	bag_coords.push_back(target_coords)
+	
+	# kill any players it lands on
+	for player in players:
+		if player.coords == target_coords:
+			players.erase(player)
+			break
+
+func bounce_bag(from_coords: Vector2i, dir: Vector2i, max_dist: int = 9999) -> Vector2i:
+	var i: int = 0
+	var target_coords: Vector2i = from_coords
+	while(i < max_dist):
+		i += 1
+		target_coords = from_coords + dir * i
+		var world_atlas = world_tiles.get_cell_atlas_coords(target_coords)
+		if world_atlas == DIRT_ATLAS:
+			world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
+		if world_atlas == WALL_ATLAS or world_atlas == WALL_BOUNCE_ATLAS:
+			target_coords = target_coords - dir
+			break
+	return target_coords
