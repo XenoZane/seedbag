@@ -56,7 +56,7 @@ func logg(msg: String):
 
 func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
-	initial_entity_world_state = entity_tiles.tile_map_data
+	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
 	for coords: Vector2i in entity_tiles.get_used_cells():
 		if entity_tiles.get_cell_atlas_coords(coords) == BAG_ATLAS:
 			bag_coords.push_back(coords)
@@ -81,14 +81,16 @@ func push_undo_state():
 		state.players.push_back(copy)
 	state.bag_coords = bag_coords.duplicate()
 	state.scythe_coords = scythe_coords.duplicate()
+	
+	# NOTE (sam): any state-changing world tiles can get saved here.
 	for coord in world_tiles.get_used_cells():
 		var atlas := world_tiles.get_cell_atlas_coords(coord)
 		if atlas == DIRT_SEEDED_ATLAS:
 			state.dirt_seeded_tiles.push_back(coord)
+			
 	undo_stack.push_back(state)
-	
-	logg("undo history: %d steps" % len(undo_stack))
 
+# basically similar to the init.
 func reset() -> void:
 	players.clear()
 	bag_coords.clear()
@@ -114,6 +116,7 @@ func undo() -> void:
 		return
 	
 	var state: UndoState = undo_stack.pop_back()
+	players.clear()
 	for player in state.players:
 		var copy := Player.new()
 		copy.coords = player.coords
@@ -124,6 +127,8 @@ func undo() -> void:
 		players.push_back(copy)
 	bag_coords = state.bag_coords.duplicate()
 	scythe_coords = state.scythe_coords.duplicate()
+	
+	# NOTE (sam): any state-changing world tiles can get restored here.
 	world_tiles.tile_map_data = initial_world_state
 	for coords: Vector2i in state.dirt_seeded_tiles:
 		# check incase of bugs for the moment.
@@ -141,6 +146,10 @@ func _input(event: InputEvent) -> void:
 	
 	var movement_dir: Vector2i = Vector2i.ZERO
 	if event.is_action_pressed("reset"):
+		# NOTE (sam): nice if we spam reset, we only save a single operation in the undo stack.
+		# right now undo state is done before a move (eg. saves the previous right before we do the next)
+		# so that we have the state we want to jump back to at the top.
+		# if we saved after every move, we'd have to peek back 2, maybe there's a reason to do this (eg. saving and resuming a session from disk).
 		if not last_move_was_reset:
 			push_undo_state()
 		
