@@ -1,5 +1,7 @@
 extends Node2D
 
+var steps_taken: int = 0
+
 const STEPS_TO_THROW: int = 1
 
 # struct
@@ -8,9 +10,22 @@ class Player:
 	var target_coords: Vector2i
 	var can_move: bool
 	var bag_steps: int # -1 == emptyhanded, integer == number of steps until thrown
+	var what_carrying: int
 
 var bag_coords: Array[Vector2i] = []
+var scythe_coords: Array[Vector2i] = []
 var players: Array[Player] = []
+
+# NOTE (sam): minimal to get working... it's not a minimal delta as it could be.
+# maybe we dont care?
+class UndoState:
+	var players: Array[Player]
+	var bag_coords: Array[Vector2i]
+	var scythe_coords: Array[Vector2i]
+	var dirt_seeded_tiles: Array[Vector2i]
+
+var undo_stack: Array[UndoState] = []
+var last_move_was_reset: bool = false
 
 const BAG_ATLAS = Vector2i(0, 1)
 const PLAYER_ATLAS = Vector2i(1, 1)
@@ -22,36 +37,115 @@ const STONE_ATLAS = Vector2i(2, 0)
 const WALL_ATLAS = Vector2i(3, 0)
 const WALL_BOUNCE_ATLAS = Vector2i(4, 0)
 
+const SCYTHE_ATLAS = Vector2i(0, 2)
+const PLAYER_SCYTHE_0_ATLAS = Vector2i(3, 2)
+const PLAYER_SCYTHE_1_ATLAS = Vector2i(2, 2)
+
+const CARRY_NOTHING := 0
+const CARRY_BAG := 1
+const CARRY_SCYTHE := 2
+
 @onready var world_tiles: TileMapLayer = $WorldTiles
 @onready var entity_tiles: TileMapLayer = $EntityTiles
 
 var initial_world_state: PackedByteArray
+var initial_entity_world_state: PackedByteArray
+
+func logg(msg: String):
+	print("[step %d] %s" % [steps_taken, msg])
 
 func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
+	initial_entity_world_state = entity_tiles.tile_map_data
 	for coords: Vector2i in entity_tiles.get_used_cells():
 		if entity_tiles.get_cell_atlas_coords(coords) == BAG_ATLAS:
 			bag_coords.push_back(coords)
+		elif entity_tiles.get_cell_atlas_coords(coords) == SCYTHE_ATLAS:
+			scythe_coords.push_back(coords)
 		elif entity_tiles.get_cell_atlas_coords(coords) == PLAYER_ATLAS:
 			var new_player: Player = Player.new()
 			new_player.coords = coords
 			new_player.bag_steps = -1
 			players.push_back(new_player)
 
+func push_undo_state():
+	var state = UndoState.new()
+	
+	for player in players:
+		var copy := Player.new()
+		copy.coords = player.coords
+		copy.target_coords = player.target_coords
+		copy.bag_steps = player.bag_steps
+		copy.can_move = player.can_move
+		copy.what_carrying = player.what_carrying
+		state.players.push_back(copy)
+	state.bag_coords = bag_coords.duplicate()
+	state.scythe_coords = scythe_coords.duplicate()
+	for coord in world_tiles.get_used_cells():
+		var atlas := world_tiles.get_cell_atlas_coords(coord)
+		if atlas == DIRT_SEEDED_ATLAS:
+			state.dirt_seeded_tiles.push_back(coord)
+	undo_stack.push_back(state)
+	
+	logg("undo history: %d steps" % len(undo_stack))
+
 func reset() -> void:
-	pass
+	players.clear()
+	bag_coords.clear()
+	scythe_coords.clear()
+	world_tiles.tile_map_data = initial_world_state
+	entity_tiles.tile_map_data = initial_entity_world_state
+	
+	for coords: Vector2i in entity_tiles.get_used_cells():
+		if entity_tiles.get_cell_atlas_coords(coords) == BAG_ATLAS:
+			bag_coords.push_back(coords)
+		elif entity_tiles.get_cell_atlas_coords(coords) == SCYTHE_ATLAS:
+			scythe_coords.push_back(coords)
+		elif entity_tiles.get_cell_atlas_coords(coords) == PLAYER_ATLAS:
+			var new_player: Player = Player.new()
+			new_player.coords = coords
+			new_player.bag_steps = -1
+			players.push_back(new_player)
+	
+	last_move_was_reset = true
 
 func undo() -> void:
-	pass
+	if len(undo_stack) < 1:
+		return
+	
+	var state: UndoState = undo_stack.pop_back()
+	for player in state.players:
+		var copy := Player.new()
+		copy.coords = player.coords
+		copy.target_coords = player.target_coords
+		copy.bag_steps = player.bag_steps
+		copy.can_move = player.can_move
+		copy.what_carrying = player.what_carrying
+		players.push_back(copy)
+	bag_coords = state.bag_coords.duplicate()
+	scythe_coords = state.scythe_coords.duplicate()
+	world_tiles.tile_map_data = initial_world_state
+	for coords: Vector2i in state.dirt_seeded_tiles:
+		# check incase of bugs for the moment.
+		var tile := world_tiles.get_cell_atlas_coords(coords)
+		assert(tile == DIRT_ATLAS or tile == DIRT_SEEDED_ATLAS, "saved dirt seeded for non-dirt world tile")
+		
+		world_tiles.set_cell(coords, 0, DIRT_SEEDED_ATLAS)
+
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("undo"):
 		undo()
+		update_entity_visuals()
 		return
 	
 	var movement_dir: Vector2i = Vector2i.ZERO
 	if event.is_action_pressed("reset"):
+		if not last_move_was_reset:
+			push_undo_state()
+		
 		reset()
+		update_entity_visuals()
 	elif event.is_action_pressed("left"):
 		movement_dir += Vector2i.LEFT
 	elif event.is_action_pressed("right"):
@@ -62,11 +156,16 @@ func _input(event: InputEvent) -> void:
 		movement_dir += Vector2i.DOWN
 	
 	if movement_dir != Vector2i.ZERO:
+		last_move_was_reset = false
+		
+		push_undo_state()
+		steps_taken += 1
+		
 		move_players(movement_dir)
 		update_entity_visuals()
 
 func move_players(dir: Vector2i) -> void:
-	print("move players")
+	logg("move players")
 	# phase 1: initial intent
 	for player: Player in players:
 		player.can_move = true
@@ -76,7 +175,8 @@ func move_players(dir: Vector2i) -> void:
 			player.target_coords = player.coords
 			player.can_move = false
 			player.bag_steps = -1
-			throw_bag(player.coords, dir)
+			throw_item(player.coords, dir, player.what_carrying)
+			player.what_carrying = CARRY_NOTHING
 			continue
 		
 		# else, move
@@ -127,25 +227,38 @@ func move_players(dir: Vector2i) -> void:
 		# pick up bag
 		if player.coords in bag_coords:
 			player.bag_steps = STEPS_TO_THROW
+			player.what_carrying = CARRY_BAG
 			bag_coords.erase(player.coords)
-
+			
+		if player.coords in scythe_coords:
+			player.bag_steps = STEPS_TO_THROW
+			player.what_carrying = CARRY_SCYTHE
+			scythe_coords.erase(player.coords)
 
 
 func update_entity_visuals() -> void:
 	entity_tiles.clear()
 	for coords in bag_coords:
 		entity_tiles.set_cell(coords, 0, BAG_ATLAS)
+	for coords in scythe_coords:
+		entity_tiles.set_cell(coords, 0, SCYTHE_ATLAS)
 	for player in players:
 		match player.bag_steps:
 			-1:
 				entity_tiles.set_cell(player.coords, 0, PLAYER_ATLAS)
 			0:
-				entity_tiles.set_cell(player.coords, 0, PLAYER_BAG_0_ATLAS)
+				if player.what_carrying == CARRY_BAG:
+					entity_tiles.set_cell(player.coords, 0, PLAYER_BAG_0_ATLAS)
+				elif player.what_carrying == CARRY_SCYTHE:
+					entity_tiles.set_cell(player.coords, 0, PLAYER_SCYTHE_0_ATLAS)
 			1:
-				entity_tiles.set_cell(player.coords, 0, PLAYER_BAG_1_ATLAS)
+				if player.what_carrying == CARRY_BAG:
+					entity_tiles.set_cell(player.coords, 0, PLAYER_BAG_1_ATLAS)
+				elif player.what_carrying == CARRY_SCYTHE:
+					entity_tiles.set_cell(player.coords, 0, PLAYER_SCYTHE_1_ATLAS)
 
 
-func throw_bag(from_coords: Vector2i, dir: Vector2i) -> void:
+func throw_item(from_coords: Vector2i, dir: Vector2i, type: int) -> void:
 	var i: int = 0
 	var target_coords: Vector2i
 	while(true):
@@ -153,15 +266,22 @@ func throw_bag(from_coords: Vector2i, dir: Vector2i) -> void:
 		target_coords = from_coords + dir * i
 		var world_atlas = world_tiles.get_cell_atlas_coords(target_coords)
 		if world_atlas == DIRT_ATLAS:
-			world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
+			if type == CARRY_BAG:
+				world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
+		if world_atlas == DIRT_SEEDED_ATLAS:
+			if type == CARRY_SCYTHE:
+				world_tiles.set_cell(target_coords, 0, DIRT_ATLAS)
 		if world_atlas == WALL_ATLAS:
-			target_coords = bounce_bag(target_coords, -dir, 1)
+			target_coords = bounce_item(target_coords, -dir, type, 1)
 			break
 		if world_atlas == WALL_BOUNCE_ATLAS:
-			target_coords = bounce_bag(target_coords, -dir, 2)
+			target_coords = bounce_item(target_coords, -dir, type, 2)
 			break
 	
-	bag_coords.push_back(target_coords)
+	if type == CARRY_BAG:
+		bag_coords.push_back(target_coords)
+	elif type == CARRY_SCYTHE:
+		scythe_coords.push_back(target_coords)
 	
 	# kill any players it lands on
 	for player in players:
@@ -169,7 +289,7 @@ func throw_bag(from_coords: Vector2i, dir: Vector2i) -> void:
 			players.erase(player)
 			break
 
-func bounce_bag(from_coords: Vector2i, dir: Vector2i, max_dist: int = 9999) -> Vector2i:
+func bounce_item(from_coords: Vector2i, dir: Vector2i, type: int, max_dist: int = 9999) -> Vector2i:
 	var i: int = 0
 	var target_coords: Vector2i = from_coords
 	while(i < max_dist):
@@ -177,7 +297,11 @@ func bounce_bag(from_coords: Vector2i, dir: Vector2i, max_dist: int = 9999) -> V
 		target_coords = from_coords + dir * i
 		var world_atlas = world_tiles.get_cell_atlas_coords(target_coords)
 		if world_atlas == DIRT_ATLAS:
-			world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
+			if type == CARRY_BAG:
+				world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
+		if world_atlas == DIRT_SEEDED_ATLAS:
+			if type == CARRY_SCYTHE:
+				world_tiles.set_cell(target_coords, 0, DIRT_ATLAS)
 		if world_atlas == WALL_ATLAS or world_atlas == WALL_BOUNCE_ATLAS:
 			target_coords = target_coords - dir
 			break
