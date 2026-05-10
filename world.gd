@@ -4,15 +4,18 @@ var steps_taken: int = 0
 
 const STEPS_TO_THROW: int = 1
 
+enum ObjectType {NOTHING, GREEN_BAG, PINK_BAG, SCYTHE}
+
 # struct
 class Player:
 	var coords: Vector2i
 	var target_coords: Vector2i
 	var can_move: bool
 	var bag_steps: int # -1 == emptyhanded, integer == number of steps until thrown
-	var what_carrying: int
+	var what_carrying: ObjectType
 
-var bag_coords: Array[Vector2i] = []
+var green_bag_coords: Array[Vector2i] = []
+var pink_bag_coords: Array[Vector2i] = []
 var scythe_coords: Array[Vector2i] = []
 var players: Array[Player] = []
 
@@ -20,30 +23,37 @@ var players: Array[Player] = []
 # maybe we dont care?
 class UndoState:
 	var players: Array[Player]
-	var bag_coords: Array[Vector2i]
+	var green_bag_coords: Array[Vector2i]
+	var pink_bag_coords: Array[Vector2i]
 	var scythe_coords: Array[Vector2i]
-	var dirt_seeded_tiles: Array[Vector2i]
+	var green_dirt_seeded_tiles: Array[Vector2i]
+	var pink_dirt_seeded_tiles: Array[Vector2i]
 
 var undo_stack: Array[UndoState] = []
 var last_move_was_reset: bool = false
 
-const BAG_ATLAS = Vector2i(0, 1)
-const PLAYER_ATLAS = Vector2i(1, 1)
-const PLAYER_BAG_0_ATLAS = Vector2i(3, 1)
-const PLAYER_BAG_1_ATLAS = Vector2i(2, 1)
-const DIRT_ATLAS = Vector2i(0, 0)
-const DIRT_SEEDED_ATLAS = Vector2i(1, 0)
-const STONE_ATLAS = Vector2i(2, 0)
-const WALL_ATLAS = Vector2i(3, 0)
-const WALL_BOUNCE_ATLAS = Vector2i(4, 0)
 
-const SCYTHE_ATLAS = Vector2i(0, 2)
-const PLAYER_SCYTHE_0_ATLAS = Vector2i(3, 2)
-const PLAYER_SCYTHE_1_ATLAS = Vector2i(2, 2)
+const WALL_ATLAS = Vector2i(0, 0)
+const WALL_BOUNCE_ATLAS = Vector2i(1, 0)
 
-const CARRY_NOTHING := 0
-const CARRY_BAG := 1
-const CARRY_SCYTHE := 2
+const PLAYER_ATLAS = Vector2i(0, 1)
+const STONE_ATLAS = Vector2i(4, 1)
+
+const GREEN_BAG_ATLAS = Vector2i(0, 2)
+const PLAYER_GREEN_BAG_0_ATLAS = Vector2i(2, 2)
+const PLAYER_GREEN_BAG_1_ATLAS = Vector2i(1, 2)
+const GREEN_DIRT_SEEDED_ATLAS = Vector2i(3, 2)
+const GREEN_DIRT_ATLAS = Vector2i(4, 2)
+
+const PINK_BAG_ATLAS = Vector2i(0, 3)
+const PLAYER_PINK_BAG_0_ATLAS = Vector2i(2, 3)
+const PLAYER_PINK_BAG_1_ATLAS = Vector2i(1, 3)
+const PINK_DIRT_SEEDED_ATLAS = Vector2i(3, 3)
+const PINK_DIRT_ATLAS = Vector2i(4, 3)
+
+const SCYTHE_ATLAS = Vector2i(0, 4)
+const PLAYER_SCYTHE_0_ATLAS = Vector2i(2, 4)
+const PLAYER_SCYTHE_1_ATLAS = Vector2i(1, 4)
 
 @onready var world_tiles: TileMapLayer = $WorldTiles
 @onready var entity_tiles: TileMapLayer = $EntityTiles
@@ -58,14 +68,17 @@ func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
 	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
 	for coords: Vector2i in entity_tiles.get_used_cells():
-		if entity_tiles.get_cell_atlas_coords(coords) == BAG_ATLAS:
-			bag_coords.push_back(coords)
+		if entity_tiles.get_cell_atlas_coords(coords) == GREEN_BAG_ATLAS:
+			green_bag_coords.push_back(coords)
+		elif entity_tiles.get_cell_atlas_coords(coords) == PINK_BAG_ATLAS:
+			pink_bag_coords.push_back(coords)
 		elif entity_tiles.get_cell_atlas_coords(coords) == SCYTHE_ATLAS:
 			scythe_coords.push_back(coords)
 		elif entity_tiles.get_cell_atlas_coords(coords) == PLAYER_ATLAS:
 			var new_player: Player = Player.new()
 			new_player.coords = coords
 			new_player.bag_steps = -1
+			new_player.what_carrying = ObjectType.NOTHING
 			players.push_back(new_player)
 
 func push_undo_state():
@@ -79,34 +92,41 @@ func push_undo_state():
 		copy.can_move = player.can_move
 		copy.what_carrying = player.what_carrying
 		state.players.push_back(copy)
-	state.bag_coords = bag_coords.duplicate()
+	state.green_bag_coords = green_bag_coords.duplicate()
+	state.pink_bag_coords = pink_bag_coords.duplicate()
 	state.scythe_coords = scythe_coords.duplicate()
 	
 	# NOTE (sam): any state-changing world tiles can get saved here.
 	for coord in world_tiles.get_used_cells():
 		var atlas := world_tiles.get_cell_atlas_coords(coord)
-		if atlas == DIRT_SEEDED_ATLAS:
-			state.dirt_seeded_tiles.push_back(coord)
+		if atlas == GREEN_DIRT_SEEDED_ATLAS:
+			state.green_dirt_seeded_tiles.push_back(coord)
+		elif atlas == PINK_DIRT_SEEDED_ATLAS:
+			state.pink_dirt_seeded_tiles.push_back(coord)
 			
 	undo_stack.push_back(state)
 
 # basically similar to the init.
 func reset() -> void:
 	players.clear()
-	bag_coords.clear()
+	green_bag_coords.clear()
+	pink_bag_coords.clear()
 	scythe_coords.clear()
 	world_tiles.tile_map_data = initial_world_state
 	entity_tiles.tile_map_data = initial_entity_world_state
 	
 	for coords: Vector2i in entity_tiles.get_used_cells():
-		if entity_tiles.get_cell_atlas_coords(coords) == BAG_ATLAS:
-			bag_coords.push_back(coords)
+		if entity_tiles.get_cell_atlas_coords(coords) == GREEN_BAG_ATLAS:
+			green_bag_coords.push_back(coords)
+		elif entity_tiles.get_cell_atlas_coords(coords) == PINK_BAG_ATLAS:
+			pink_bag_coords.push_back(coords)
 		elif entity_tiles.get_cell_atlas_coords(coords) == SCYTHE_ATLAS:
 			scythe_coords.push_back(coords)
 		elif entity_tiles.get_cell_atlas_coords(coords) == PLAYER_ATLAS:
 			var new_player: Player = Player.new()
 			new_player.coords = coords
 			new_player.bag_steps = -1
+			new_player.what_carrying = ObjectType.NOTHING
 			players.push_back(new_player)
 	
 	last_move_was_reset = true
@@ -125,17 +145,22 @@ func undo() -> void:
 		copy.can_move = player.can_move
 		copy.what_carrying = player.what_carrying
 		players.push_back(copy)
-	bag_coords = state.bag_coords.duplicate()
+	green_bag_coords = state.green_bag_coords.duplicate()
+	pink_bag_coords = state.pink_bag_coords.duplicate()
 	scythe_coords = state.scythe_coords.duplicate()
 	
 	# NOTE (sam): any state-changing world tiles can get restored here.
 	world_tiles.tile_map_data = initial_world_state
-	for coords: Vector2i in state.dirt_seeded_tiles:
+	for coords: Vector2i in state.green_dirt_seeded_tiles:
 		# check incase of bugs for the moment.
 		var tile := world_tiles.get_cell_atlas_coords(coords)
-		assert(tile == DIRT_ATLAS or tile == DIRT_SEEDED_ATLAS, "saved dirt seeded for non-dirt world tile")
-		
-		world_tiles.set_cell(coords, 0, DIRT_SEEDED_ATLAS)
+		assert(tile == GREEN_DIRT_ATLAS or tile == GREEN_DIRT_SEEDED_ATLAS, "saved green dirt seeded for non-dirt world tile")
+		world_tiles.set_cell(coords, 0, GREEN_DIRT_SEEDED_ATLAS)
+	for coords: Vector2i in state.pink_dirt_seeded_tiles:
+		# check incase of bugs for the moment.
+		var tile := world_tiles.get_cell_atlas_coords(coords)
+		assert(tile == PINK_DIRT_ATLAS or tile == PINK_DIRT_SEEDED_ATLAS, "saved pink dirt seeded for non-dirt world tile")
+		world_tiles.set_cell(coords, 0, PINK_DIRT_SEEDED_ATLAS)
 
 
 func _input(event: InputEvent) -> void:
@@ -185,7 +210,7 @@ func move_players(dir: Vector2i) -> void:
 			player.can_move = false
 			player.bag_steps = -1
 			throw_item(player.coords, dir, player.what_carrying)
-			player.what_carrying = CARRY_NOTHING
+			player.what_carrying = ObjectType.NOTHING
 			continue
 		
 		# else, move
@@ -202,7 +227,8 @@ func move_players(dir: Vector2i) -> void:
 			
 			# trying to move into a wall
 			var world_atlas: Vector2i = world_tiles.get_cell_atlas_coords(player.target_coords)
-			if world_atlas == WALL_ATLAS or world_atlas == WALL_BOUNCE_ATLAS:
+			if world_atlas == WALL_ATLAS or world_atlas == WALL_BOUNCE_ATLAS or \
+				(player.what_carrying != ObjectType.NOTHING and (green_bag_coords.has(player.target_coords) or pink_bag_coords.has(player.target_coords) or scythe_coords.has(player.target_coords))):
 				player.can_move = false
 				player.target_coords = player.coords
 				changed = true
@@ -234,21 +260,26 @@ func move_players(dir: Vector2i) -> void:
 			player.bag_steps -= 1
 		player.coords = player.target_coords
 		# pick up bag
-		if player.coords in bag_coords:
+		if player.coords in green_bag_coords:
 			player.bag_steps = STEPS_TO_THROW
-			player.what_carrying = CARRY_BAG
-			bag_coords.erase(player.coords)
-			
-		if player.coords in scythe_coords:
+			player.what_carrying = ObjectType.GREEN_BAG
+			green_bag_coords.erase(player.coords)
+		elif player.coords in pink_bag_coords:
 			player.bag_steps = STEPS_TO_THROW
-			player.what_carrying = CARRY_SCYTHE
+			player.what_carrying = ObjectType.PINK_BAG
+			pink_bag_coords.erase(player.coords)
+		elif player.coords in scythe_coords:
+			player.bag_steps = STEPS_TO_THROW
+			player.what_carrying = ObjectType.SCYTHE
 			scythe_coords.erase(player.coords)
 
 
 func update_entity_visuals() -> void:
 	entity_tiles.clear()
-	for coords in bag_coords:
-		entity_tiles.set_cell(coords, 0, BAG_ATLAS)
+	for coords in green_bag_coords:
+		entity_tiles.set_cell(coords, 0, GREEN_BAG_ATLAS)
+	for coords in pink_bag_coords:
+		entity_tiles.set_cell(coords, 0, PINK_BAG_ATLAS)
 	for coords in scythe_coords:
 		entity_tiles.set_cell(coords, 0, SCYTHE_ATLAS)
 	for player in players:
@@ -256,40 +287,50 @@ func update_entity_visuals() -> void:
 			-1:
 				entity_tiles.set_cell(player.coords, 0, PLAYER_ATLAS)
 			0:
-				if player.what_carrying == CARRY_BAG:
-					entity_tiles.set_cell(player.coords, 0, PLAYER_BAG_0_ATLAS)
-				elif player.what_carrying == CARRY_SCYTHE:
-					entity_tiles.set_cell(player.coords, 0, PLAYER_SCYTHE_0_ATLAS)
+				match player.what_carrying:
+					ObjectType.NOTHING:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_ATLAS)
+					ObjectType.GREEN_BAG:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_GREEN_BAG_0_ATLAS)
+					ObjectType.PINK_BAG:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_PINK_BAG_0_ATLAS)
+					ObjectType.SCYTHE:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_SCYTHE_0_ATLAS)
 			1:
-				if player.what_carrying == CARRY_BAG:
-					entity_tiles.set_cell(player.coords, 0, PLAYER_BAG_1_ATLAS)
-				elif player.what_carrying == CARRY_SCYTHE:
-					entity_tiles.set_cell(player.coords, 0, PLAYER_SCYTHE_1_ATLAS)
+				match player.what_carrying:
+					ObjectType.NOTHING:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_ATLAS)
+					ObjectType.GREEN_BAG:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_GREEN_BAG_1_ATLAS)
+					ObjectType.PINK_BAG:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_PINK_BAG_1_ATLAS)
+					ObjectType.SCYTHE:
+						entity_tiles.set_cell(player.coords, 0, PLAYER_SCYTHE_1_ATLAS)
 
 
-func throw_item(from_coords: Vector2i, dir: Vector2i, type: int) -> void:
+func throw_item(from_coords: Vector2i, dir: Vector2i, type: ObjectType) -> void:
 	var i: int = 0
 	var target_coords: Vector2i
 	while(true):
 		i += 1
 		target_coords = from_coords + dir * i
+		update_world_during_throw(target_coords, type)
 		var world_atlas = world_tiles.get_cell_atlas_coords(target_coords)
-		if world_atlas == DIRT_ATLAS:
-			if type == CARRY_BAG:
-				world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
-		if world_atlas == DIRT_SEEDED_ATLAS:
-			if type == CARRY_SCYTHE:
-				world_tiles.set_cell(target_coords, 0, DIRT_ATLAS)
-		if world_atlas == WALL_ATLAS:
+		if scythe_coords.has(target_coords) and (type == ObjectType.GREEN_BAG or type == ObjectType.PINK_BAG):
+				return # return without adding back to list AKA kill me
+		if world_atlas == WALL_ATLAS or (type != ObjectType.SCYTHE and (pink_bag_coords.has(target_coords) or green_bag_coords.has(target_coords))):
 			target_coords = bounce_item(target_coords, -dir, type, 1)
 			break
 		if world_atlas == WALL_BOUNCE_ATLAS:
 			target_coords = bounce_item(target_coords, -dir, type, 2)
 			break
+			
 	
-	if type == CARRY_BAG:
-		bag_coords.push_back(target_coords)
-	elif type == CARRY_SCYTHE:
+	if type == ObjectType.GREEN_BAG:
+		green_bag_coords.push_back(target_coords)
+	elif type == ObjectType.PINK_BAG:
+		pink_bag_coords.push_back(target_coords)
+	elif type == ObjectType.SCYTHE:
 		scythe_coords.push_back(target_coords)
 	
 	# kill any players it lands on
@@ -304,14 +345,28 @@ func bounce_item(from_coords: Vector2i, dir: Vector2i, type: int, max_dist: int 
 	while(i < max_dist):
 		i += 1
 		target_coords = from_coords + dir * i
+		update_world_during_throw(target_coords, type)
 		var world_atlas = world_tiles.get_cell_atlas_coords(target_coords)
-		if world_atlas == DIRT_ATLAS:
-			if type == CARRY_BAG:
-				world_tiles.set_cell(target_coords, 0, DIRT_SEEDED_ATLAS)
-		if world_atlas == DIRT_SEEDED_ATLAS:
-			if type == CARRY_SCYTHE:
-				world_tiles.set_cell(target_coords, 0, DIRT_ATLAS)
 		if world_atlas == WALL_ATLAS or world_atlas == WALL_BOUNCE_ATLAS:
 			target_coords = target_coords - dir
 			break
 	return target_coords
+
+
+func update_world_during_throw(at_coords: Vector2i, type: ObjectType) -> void:
+	var world_atlas = world_tiles.get_cell_atlas_coords(at_coords)
+	if world_atlas == GREEN_DIRT_ATLAS:
+		if type == ObjectType.GREEN_BAG:
+			world_tiles.set_cell(at_coords, 0, GREEN_DIRT_SEEDED_ATLAS)
+	if world_atlas == PINK_DIRT_ATLAS:
+		if type == ObjectType.PINK_BAG:
+			world_tiles.set_cell(at_coords, 0, PINK_DIRT_SEEDED_ATLAS)
+	if type == ObjectType.SCYTHE:
+		if world_atlas == GREEN_DIRT_SEEDED_ATLAS:
+			world_tiles.set_cell(at_coords, 0, GREEN_DIRT_ATLAS)
+		if world_atlas == PINK_DIRT_SEEDED_ATLAS:
+			world_tiles.set_cell(at_coords, 0, PINK_DIRT_ATLAS)
+		if green_bag_coords.has(at_coords):
+			green_bag_coords.erase(at_coords)
+		if pink_bag_coords.has(at_coords):
+			pink_bag_coords.erase(at_coords)
