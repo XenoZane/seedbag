@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://ckya23tltuabk"]
+
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="1_0byv1"]
+[ext_resource type="Script" uid="uid://c64fo3n2brc83" path="res://title.gd" id="1_k86xs"]
+
+[node name="Root" type="Node2D" unique_id=881326934]
+script = ExtResource("1_k86xs")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
+offset_right = 128.0
+offset_bottom = 96.0
+color = Color(0, 0, 0, 1)
+
+[node name="Title" type="RichTextLabel" parent="." unique_id=1829885548]
+offset_right = 128.0
+offset_bottom = 19.0
+theme_override_fonts/normal_font = ExtResource("1_0byv1")
+theme_override_font_sizes/normal_font_size = 12
+text = "seedbag"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Authors" type="RichTextLabel" parent="." unique_id=1392899169]
+offset_top = 11.0
+offset_right = 128.0
+offset_bottom = 30.0
+theme_override_fonts/normal_font = ExtResource("1_0byv1")
+theme_override_font_sizes/normal_font_size = 12
+text = "by zane and sam"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NewGame" type="RichTextLabel" parent="." unique_id=1209290940]
+offset_top = 28.0
+offset_right = 128.0
+offset_bottom = 47.0
+theme_override_fonts/normal_font = ExtResource("1_0byv1")
+theme_override_font_sizes/normal_font_size = 12
+text = "new game"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Continue" type="RichTextLabel" parent="." unique_id=15898822]
+offset_top = 40.0
+offset_right = 128.0
+offset_bottom = 59.0
+theme_override_fonts/normal_font = ExtResource("1_0byv1")
+theme_override_font_sizes/normal_font_size = 12
+text = "continue"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Instructions" type="RichTextLabel" parent="." unique_id=1139385926]
+offset_top = 60.0
+offset_right = 128.0
+offset_bottom = 96.0
+theme_override_fonts/normal_font = ExtResource("1_0byv1")
+theme_override_font_sizes/normal_font_size = 12
+text = "arrow keys to move
+X to select
+Z to undo, R to restart"
+fit_content = true
+scroll_active = false
+vertical_alignment = 1

@@ -1,9 +1,11 @@
 extends Node2D
 
+const REPEAY_DELAY: float = 0.2
+var echo_pressed_delay: float = 0.0
+
 @export var will_trample_pink_seeds: bool = false
 
 var steps_taken: int = 0
-
 const STEPS_TO_THROW: int = 1
 
 enum ObjectType {NOTHING, GREEN_BAG, PINK_BAG, SCYTHE}
@@ -62,6 +64,9 @@ const PLAYER_SCYTHE_1_ATLAS = Vector2i(1, 4)
 
 var initial_world_state: PackedByteArray
 var initial_entity_world_state: PackedByteArray
+
+var completed: bool = false
+signal complete
 
 func logg(msg: String):
 	print("[step %d] %s" % [steps_taken, msg])
@@ -166,7 +171,15 @@ func undo() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if completed:
+		return
+		
 	if event.is_action_pressed("undo"):
+		if event.is_echo() and echo_pressed_delay <= 0:
+			echo_pressed_delay = REPEAY_DELAY
+		elif event.is_echo() and echo_pressed_delay > 0:
+			return
+		
 		undo()
 		update_entity_visuals()
 		return
@@ -199,6 +212,21 @@ func _input(event: InputEvent) -> void:
 		
 		move_players(movement_dir)
 		update_entity_visuals()
+	
+	# check for completion
+	if not completed:
+		var found_unplanted_green := false
+		var found_unplanted_pink := false
+		for coords: Vector2i in world_tiles.get_used_cells():
+			var tile := world_tiles.get_cell_atlas_coords(coords)
+			if tile == PINK_DIRT_ATLAS:
+				found_unplanted_pink = true
+			elif tile == GREEN_DIRT_ATLAS:
+				found_unplanted_green = true
+		if not found_unplanted_green and not found_unplanted_pink:
+			logg("Level complete!")
+			completed = true
+			complete.emit()
 
 func move_players(dir: Vector2i) -> void:
 	logg("move players")
@@ -378,3 +406,6 @@ func update_world_during_throw(at_coords: Vector2i, type: ObjectType) -> void:
 			green_bag_coords.erase(at_coords)
 		if pink_bag_coords.has(at_coords):
 			pink_bag_coords.erase(at_coords)
+
+func _process(delta: float) -> void:
+	echo_pressed_delay -= delta
