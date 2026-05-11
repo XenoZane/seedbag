@@ -1,5 +1,7 @@
 extends Node2D
 
+@export var will_trample_pink_seeds: bool = false
+
 var steps_taken: int = 0
 
 const STEPS_TO_THROW: int = 1
@@ -272,6 +274,12 @@ func move_players(dir: Vector2i) -> void:
 			player.bag_steps = STEPS_TO_THROW
 			player.what_carrying = ObjectType.SCYTHE
 			scythe_coords.erase(player.coords)
+		
+		# trample
+		if will_trample_pink_seeds:
+			var tile := world_tiles.get_cell_atlas_coords(player.coords)
+			if tile == PINK_DIRT_SEEDED_ATLAS:
+				world_tiles.set_cell(player.coords, 0, PINK_DIRT_ATLAS)
 
 
 func update_entity_visuals() -> void:
