@@ -17,7 +17,9 @@ offset_bottom = 84.0
 theme_override_constants/line_separation = -4
 theme_override_fonts/normal_font = ExtResource("2_1ttwt")
 theme_override_font_sizes/normal_font_size = 12
-text = "you win!"
+text = "thanks!
+
+i've got some more plants for you later."
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1

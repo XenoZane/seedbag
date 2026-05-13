@@ -1,10 +1,10 @@
-[gd_scene format=3 uid="uid://dbqtolxkjertl"]
+[gd_scene format=3 uid="uid://bcbjjv1qtethi"]
 
-[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_sahua"]
-[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_3ldgt"]
+[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_d6gjd"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_v5t2i"]
 
 [node name="Root" type="Node2D" unique_id=881326934]
-script = ExtResource("1_sahua")
+script = ExtResource("1_d6gjd")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
 offset_right = 128.0
@@ -13,11 +13,13 @@ color = Color(0, 0, 0, 1)
 
 [node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
 offset_right = 128.0
-offset_bottom = 84.0
+offset_bottom = 85.0
 theme_override_constants/line_separation = -4
-theme_override_fonts/normal_font = ExtResource("2_3ldgt")
+theme_override_fonts/normal_font = ExtResource("2_v5t2i")
 theme_override_font_sizes/normal_font_size = 12
-text = "READ THIS BEFORE PLAYING!!!"
+text = "please plant all of your flowers in each garden.
+
+flowers only bloom when their conditions are met. these conditions are the same in every garden."
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
@@ -28,7 +30,7 @@ offset_left = 4.0
 offset_top = 81.0
 offset_right = 124.0
 offset_bottom = 96.0
-theme_override_fonts/normal_font = ExtResource("2_3ldgt")
+theme_override_fonts/normal_font = ExtResource("2_v5t2i")
 theme_override_font_sizes/normal_font_size = 12
 text = "X to continue"
 fit_content = true

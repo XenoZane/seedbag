@@ -1,10 +1,10 @@
-[gd_scene format=3 uid="uid://dbqtolxkjertl"]
+[gd_scene format=3 uid="uid://b8g4pghyiip4k"]
 
-[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_sahua"]
-[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_3ldgt"]
+[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_ulyts"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_fi7mu"]
 
 [node name="Root" type="Node2D" unique_id=881326934]
-script = ExtResource("1_sahua")
+script = ExtResource("1_ulyts")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
 offset_right = 128.0
@@ -15,9 +15,9 @@ color = Color(0, 0, 0, 1)
 offset_right = 128.0
 offset_bottom = 84.0
 theme_override_constants/line_separation = -4
-theme_override_fonts/normal_font = ExtResource("2_3ldgt")
+theme_override_fonts/normal_font = ExtResource("2_fi7mu")
 theme_override_font_sizes/normal_font_size = 12
-text = "READ THIS BEFORE PLAYING!!!"
+text = "you may want to wander the gardens. there's no need to get stuck on one!"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
@@ -28,7 +28,7 @@ offset_left = 4.0
 offset_top = 81.0
 offset_right = 124.0
 offset_bottom = 96.0
-theme_override_fonts/normal_font = ExtResource("2_3ldgt")
+theme_override_fonts/normal_font = ExtResource("2_fi7mu")
 theme_override_font_sizes/normal_font_size = 12
 text = "X to continue"
 fit_content = true

@@ -4,19 +4,23 @@ extends Node
 #             (if they are info text, then thats just a button press), and go next.
 var levels := [
 	"res://newlevels/text1.tscn",
+	"res://newlevels/text1a.tscn",
+	"res://newlevels/text1b.tscn",
+	"res://newlevels/text1c.tscn",
 	"res://newlevels/garden_black1.tscn",
 	"res://newlevels/garden_black2.tscn",
 	"res://newlevels/garden_black3.tscn",
 	"res://newlevels/garden_black4.tscn",
 	"res://newlevels/garden_black5.tscn",
+	"res://newlevels/garden_white1.tscn",
+	"res://newlevels/garden_white2.tscn",
+	"res://newlevels/garden_white3.tscn",
+	"res://newlevels/garden_white4.tscn",
+	"res://newlevels/garden_wb1.tscn",
+	"res://newlevels/garden_wb2.tscn",
+	"res://newlevels/garden_wb3.tscn",
+	"res://newlevels/garden_wb4.tscn",
 	"res://newlevels/text2.tscn",
-	#"res://levels/text1.tscn",
-	#"res://levels/trample_easy.tscn",
-	#"res://levels/trample_another.tscn",
-	#"res://levels/trample_4corners.tscn",
-	#"res://levels/trample_3corners.tscn",
-	#"res://levels/trample_II.tscn",
-	#"res://levels/text2.tscn",
 ]
 var current_level := 0
 
@@ -29,7 +33,7 @@ var current_state: State = State.MAIN_MENU
 var currently_loading_level: int = 0
 # maybe a misnomer, but just the "wait time" before level transition, so you can take in that you won or w/e.
 # akin to victory screen/fadeout
-var load_minimum_time: float = 1.0
+var load_minimum_time: float = 0
 var load_minimum_timer: float = 0
 
 # TODO (sam): should we also save undo stack? we _could_. might be nice?
@@ -62,6 +66,22 @@ func _on_level_complete() -> void:
 		load_level_in_background(current_level)
 	else:
 		get_tree().change_scene_to_file("res://levels/title.tscn")
+
+func prev_level() -> void:
+	if current_level > 0:
+		current_level -= 1
+		load_level_in_background(current_level)
+	else:
+		current_level = levels.size() - 1
+		load_level_in_background(current_level)
+
+func next_level() -> void:
+	if current_level < levels.size() - 1:
+		current_level += 1
+		load_level_in_background(current_level)
+	else:
+		current_level = 0
+		load_level_in_background(current_level)
 
 func save_game() -> void:
 	var savefile := FileAccess.open("user://seedbag.save", FileAccess.WRITE)
