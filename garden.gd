@@ -22,14 +22,29 @@ const WALL_ATLAS = Vector2i(0, 0)
 const GRASS_ATLAS = Vector2i(0, 6)
 const SOIL_ATLAS = Vector2i(1, 6)
 
+#region flower data
+# things in here need to get updated when you add a new flower.
+# you should also make an `is_flower()` function for rule-following.
+# you'll have to add a rule yourself, in `tile_follows_rule()`.
 const ROSE_ATLAS = Vector2i(4, 5)
 const ROSE_FIXED_ATLAS = Vector2i(4, 6)
 const SUNFLOWER_ATLAS = Vector2i(5, 5)
 const SUNFLOWER_FIXED_ATLAS = Vector2i(5, 6)
 const LAVENDER_ATLAS = Vector2i(3, 5)
 const LAVENDER_FIXED_ATLAS = Vector2i(3, 6)
-
-var plantable_tiles: Array[Vector2i]
+const FLOWER_ATLASES = [
+	LAVENDER_ATLAS,
+	LAVENDER_FIXED_ATLAS,
+	ROSE_ATLAS,
+	ROSE_FIXED_ATLAS,
+	SUNFLOWER_ATLAS,
+	SUNFLOWER_FIXED_ATLAS
+]
+const FLOWER_UNFIXED_ATLASES = [
+	ROSE_ATLAS,
+	SUNFLOWER_ATLAS,
+	LAVENDER_ATLAS,
+]
 
 enum Tool {
 	NONE = 0,
@@ -38,12 +53,6 @@ enum Tool {
 	LAVENDER = 3,
 }
 const FLOWER_TOOLS = [Tool.ROSE, Tool.SUNFLOWER, Tool.LAVENDER]
-var current_tool: Tool = Tool.NONE
-var available_tools: Array[Tool] = []
-var available_tool_sprites: Dictionary[int, Sprite2D] = {}
-var first_tool_position: Vector2 = Vector2(-4, 43)
-
-
 const ROSE_TOOL_SPRITE_REGION := Rect2(32, 56, 8, 8)
 const SUNFLOWER_TOOL_SPRITE_REGION := Rect2(24, 56, 8, 8)
 const LAVENDER_TOOL_SPRITE_REGION := Rect2(40, 56, 8, 8)
@@ -54,22 +63,7 @@ const TOOL_SPRITE_REGIONS: Array[Rect2] = [
 	LAVENDER_TOOL_SPRITE_REGION,
 ]
 
-var level_name: String = "garden xxx"
-
-@onready var world_tiles: TileMapLayer = $WorldTiles
-@onready var entity_tiles: TileMapLayer = $EntityTiles
-
-@export var starting_amounts: Dictionary[Tool, int] = {
-	Tool.ROSE: 1,
-	Tool.SUNFLOWER: 1,
-	Tool.LAVENDER: 1,
-}
-var planted_amounts: Dictionary[Tool, int] = {
-	Tool.ROSE: 0,
-	Tool.SUNFLOWER: 0,
-	Tool.LAVENDER: 0,
-}
-var flower_atlas_to_tool: Dictionary[Vector2i, int] = {
+const FLOWER_ATLAS_TO_TOOL: Dictionary[Vector2i, int] = {
 	ROSE_ATLAS: Tool.ROSE,
 	ROSE_FIXED_ATLAS: Tool.ROSE,
 	SUNFLOWER_ATLAS: Tool.SUNFLOWER,
@@ -77,11 +71,37 @@ var flower_atlas_to_tool: Dictionary[Vector2i, int] = {
 	LAVENDER_ATLAS: Tool.LAVENDER,
 	LAVENDER_FIXED_ATLAS: Tool.LAVENDER
 }
-var flower_tool_to_atlas: Dictionary[int, Vector2i] = {
+const FLOWER_TOOL_TO_ATLAS: Dictionary[int, Vector2i] = {
 	Tool.ROSE: ROSE_ATLAS,
 	Tool.SUNFLOWER: SUNFLOWER_ATLAS,
 	Tool.LAVENDER: LAVENDER_ATLAS,
 }
+const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
+	Tool.ROSE: "roses",
+	Tool.SUNFLOWER: "sunnys",
+	Tool.LAVENDER: "lavens",
+}
+#endregion
+
+var available_tools: Array[Tool] = []
+var available_tool_sprites: Dictionary[int, Sprite2D] = {}
+var first_tool_position: Vector2 = Vector2(-4, 43)
+
+@export var starting_amounts: Dictionary[Tool, int] = {
+	Tool.ROSE: 1,
+	Tool.SUNFLOWER: 1,
+	Tool.LAVENDER: 1,
+}
+var planted_amounts: Dictionary[Tool, int]
+
+# tool/planting related state.
+var current_tool: Tool = Tool.NONE
+var plantable_tiles: Array[Vector2i]
+
+var level_name: String = "garden xxx"
+
+@onready var world_tiles: TileMapLayer = $WorldTiles
+@onready var entity_tiles: TileMapLayer = $EntityTiles
 
 var initial_world_state: PackedByteArray
 var initial_entity_world_state: PackedByteArray
@@ -100,20 +120,12 @@ func is_lavender(atlas: Vector2i) -> bool:
 	return atlas in [LAVENDER_ATLAS, LAVENDER_FIXED_ATLAS]
 
 func is_planted(atlas: Vector2i) -> bool:
-	return atlas in [ROSE_ATLAS, SUNFLOWER_ATLAS, LAVENDER_ATLAS]
+	return atlas in FLOWER_UNFIXED_ATLASES
 
 func is_flower(atlas: Vector2i) -> bool:
-	return atlas in [
-		LAVENDER_ATLAS,
-		LAVENDER_FIXED_ATLAS,
-		ROSE_ATLAS,
-		ROSE_FIXED_ATLAS,
-		SUNFLOWER_ATLAS,
-		SUNFLOWER_FIXED_ATLAS
-	]
+	return atlas in FLOWER_ATLASES
 
 # NOTE: relies on FIXED flowers being 1 below unfixed in tiles.png
-# 
 func same_flower(atlas1: Vector2i, atlas2: Vector2i) -> bool:
 	return is_flower(atlas1) and is_flower(atlas2) and (atlas1 == atlas2 or atlas1 == atlas2 + Vector2i.UP or atlas2 == atlas1 + Vector2i.UP)
 
@@ -134,6 +146,7 @@ func _ready() -> void:
 	for tool in starting_amounts.keys():
 		if starting_amounts[tool] > 0:
 			available_tools.append(tool)
+		planted_amounts[tool] = 0
 	
 	# order must be the same as Tool enum: Rose, Sunflower, Lavender, ...
 	for idx in available_tools.size():
@@ -185,22 +198,18 @@ func flowers_left(tool: Tool) -> int:
 	return starting_amounts[tool] - planted_amounts[tool]
 
 func tool_text(tool: Tool) -> String:
-	if tool == Tool.ROSE:
-		return "roses x%d" % flowers_left(tool)
-	elif tool == Tool.SUNFLOWER:
-		return "sunnys x%d" % flowers_left(tool)
-	elif tool == Tool.LAVENDER:
-		return "lavens x%d" % flowers_left(tool)
+	if tool in FLOWER_TOOLS:
+		return "%s x%d" % [FLOWER_TOOL_TEXT[tool], flowers_left(tool)]
 	else:
 		return "tools"
 
 func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool:
-	var atlas := flower_tool_to_atlas[flower]
+	var atlas := FLOWER_TOOL_TO_ATLAS[flower]
 	if can_plant_flower_on_spot(atlas, target) and planted_amounts[flower] < starting_amounts[flower]:
 		world_tiles.set_cell(tilepos, 0, atlas)
 		planted_amounts[flower] += 1
-		if target in flower_atlas_to_tool:
-			planted_amounts[flower_atlas_to_tool[target]] -= 1
+		if target in FLOWER_ATLAS_TO_TOOL:
+			planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
 		return true
 	elif is_planted(target) and same_flower(atlas, target):
 		world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
@@ -290,7 +299,11 @@ func _input(event: InputEvent) -> void:
 		$Toolbar/ToolText.text = "good job."
 
 func tile_follows_rule(atlas: Vector2i, coords: Vector2i, valid_lavenders: Array[Vector2i]) -> bool:
+	if atlas in FLOWER_ATLASES and not is_rose(atlas) and not is_sunflower(atlas) and not is_lavender(atlas):
+		assert(false, "You placed a new flower but didn't add a rule for it. Please update tile_follows_rule()")
+	
 	const adjacents: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.RIGHT, Vector2i.LEFT]
+	
 	if is_rose(atlas):
 		# 1. ensure no roses are adjacent
 		for direction in adjacents:
