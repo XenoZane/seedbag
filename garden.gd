@@ -33,12 +33,12 @@ const SUNFLOWER_FIXED_ATLAS = Vector2i(5, 6)
 const LAVENDER_ATLAS = Vector2i(3, 5)
 const LAVENDER_FIXED_ATLAS = Vector2i(3, 6)
 const FLOWER_ATLASES = [
-	LAVENDER_ATLAS,
-	LAVENDER_FIXED_ATLAS,
 	ROSE_ATLAS,
 	ROSE_FIXED_ATLAS,
 	SUNFLOWER_ATLAS,
-	SUNFLOWER_FIXED_ATLAS
+	SUNFLOWER_FIXED_ATLAS,
+	LAVENDER_ATLAS,
+	LAVENDER_FIXED_ATLAS,
 ]
 const FLOWER_UNFIXED_ATLASES = [
 	ROSE_ATLAS,
@@ -81,24 +81,23 @@ const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 	Tool.SUNFLOWER: "sunnys",
 	Tool.LAVENDER: "lavens",
 }
-#endregion
-
-var available_tools: Array[Tool] = []
-var available_tool_sprites: Dictionary[int, Sprite2D] = {}
-var first_tool_position: Vector2 = Vector2(-4, 43)
 
 @export var starting_amounts: Dictionary[Tool, int] = {
 	Tool.ROSE: 1,
 	Tool.SUNFLOWER: 1,
 	Tool.LAVENDER: 1,
 }
-var planted_amounts: Dictionary[Tool, int]
+#endregion
+
+var available_tools: Array[Tool] = []
+var available_tool_sprites: Dictionary[int, Sprite2D] = {}
+var first_tool_position: Vector2 = Vector2(-4, 43)
+var level_name: String = "change me in scene tree"
 
 # tool/planting related state.
 var current_tool: Tool = Tool.NONE
 var plantable_tiles: Array[Vector2i]
-
-var level_name: String = "garden xxx"
+var planted_amounts: Dictionary[Tool, int]
 
 @onready var world_tiles: TileMapLayer = $WorldTiles
 @onready var entity_tiles: TileMapLayer = $EntityTiles
@@ -109,7 +108,7 @@ var initial_entity_world_state: PackedByteArray
 var completed: bool = false
 signal complete
 
-# nicer names for things.
+#region flower comparisons
 func is_rose(atlas: Vector2i) -> bool:
 	return atlas in [ROSE_ATLAS, ROSE_FIXED_ATLAS]
 
@@ -131,6 +130,7 @@ func same_flower(atlas1: Vector2i, atlas2: Vector2i) -> bool:
 
 func can_plant_flower_on_spot(mine: Vector2i, target: Vector2i) -> bool:
 	return target == SOIL_ATLAS or (is_planted(target) and not same_flower(mine, target))
+#endregion
 
 func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
@@ -194,12 +194,9 @@ func undo() -> void:
 	
 	var state: UndoState = undo_stack.pop_back()
 
-func flowers_left(tool: Tool) -> int:
-	return starting_amounts[tool] - planted_amounts[tool]
-
 func tool_text(tool: Tool) -> String:
 	if tool in FLOWER_TOOLS:
-		return "%s x%d" % [FLOWER_TOOL_TEXT[tool], flowers_left(tool)]
+		return "%s x%d" % [FLOWER_TOOL_TEXT[tool], starting_amounts[tool] - planted_amounts[tool]]
 	else:
 		return "tools"
 
@@ -298,9 +295,13 @@ func _input(event: InputEvent) -> void:
 	if completed:
 		$Toolbar/ToolText.text = "good job."
 
+#region rules
 func tile_follows_rule(atlas: Vector2i, coords: Vector2i, valid_lavenders: Array[Vector2i]) -> bool:
-	if atlas in FLOWER_ATLASES and not is_rose(atlas) and not is_sunflower(atlas) and not is_lavender(atlas):
-		assert(false, "You placed a new flower but didn't add a rule for it. Please update tile_follows_rule()")
+	if atlas in FLOWER_ATLASES:
+		assert(
+			is_rose(atlas) or is_sunflower(atlas) or is_lavender(atlas), 
+			"You made a new flower but didn't add a rule for it. Update tile_follows_rule() in garden.gd (and probably create is_flower()))"
+		)
 	
 	const adjacents: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.RIGHT, Vector2i.LEFT]
 	
@@ -369,6 +370,7 @@ func all_rules_followed() -> bool:
 		if not tile_follows_rule(tile, coords, valid_lavenders):
 			return false
 	return true
+#endregion
 
 func _process(delta: float) -> void:
 	echo_pressed_delay -= delta
