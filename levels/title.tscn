@@ -16,7 +16,7 @@ offset_right = 128.0
 offset_bottom = 19.0
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
-text = "seedbag"
+text = "bountiful gardens"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
@@ -64,9 +64,8 @@ offset_right = 128.0
 offset_bottom = 96.0
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
-text = "arrow keys to move
-X to select
-Z to undo, R to restart"
+text = "move mouse to select
+click mouse for action"
 fit_content = true
 scroll_active = false
 vertical_alignment = 1

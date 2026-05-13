@@ -7,7 +7,6 @@ var starting := false
 
 func _ready() -> void:
 	update_cursor_visuals()
-
 func update_cursor_visuals():
 	if selected == 0:
 		$NewGame.text = "# %s #" % new_game_text
