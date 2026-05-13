@@ -3,8 +3,6 @@ extends Node2D
 const REPEAY_DELAY: float = 0.2
 var echo_pressed_delay: float = 0.0
 
-#region MIGHT OR MIGHT NOT USE...
-
 class Player:
 	var coords: Vector2i
 	var visited: Array[Vector2i]
@@ -26,6 +24,9 @@ const SOIL_ATLAS = Vector2i(1, 6)
 # things in here need to get updated when you add a new flower.
 # you should also make an `is_flower()` function for rule-following.
 # you'll have to add a rule yourself, in `tile_follows_rule()`.
+# 
+# unless specified, order does not matter, and should not be relied upon in code
+
 const ROSE_ATLAS = Vector2i(4, 5)
 const ROSE_FIXED_ATLAS = Vector2i(4, 6)
 const SUNFLOWER_ATLAS = Vector2i(5, 5)
@@ -53,11 +54,13 @@ enum Tool {
 	LAVENDER = 3,
 }
 const FLOWER_TOOLS = [Tool.ROSE, Tool.SUNFLOWER, Tool.LAVENDER]
+
 const ROSE_TOOL_SPRITE_REGION := Rect2(32, 56, 8, 8)
 const SUNFLOWER_TOOL_SPRITE_REGION := Rect2(24, 56, 8, 8)
 const LAVENDER_TOOL_SPRITE_REGION := Rect2(40, 56, 8, 8)
+# WARNING: order MUST be the same as Tool enum: None, Rose, Sunflower, Lavender, ...
 const TOOL_SPRITE_REGIONS: Array[Rect2] = [
-	Rect2(32, 0, 8, 8),  # invalid tool
+	Rect2(32, 0, 8, 8),  # invalid tool (None)
 	ROSE_TOOL_SPRITE_REGION, 
 	SUNFLOWER_TOOL_SPRITE_REGION, 
 	LAVENDER_TOOL_SPRITE_REGION,
@@ -89,22 +92,24 @@ const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 }
 #endregion
 
+const FIRST_TOOL_POSITION: Vector2 = Vector2(-4, 43)
+
+# stuff that is initialized dynamically on ready.
 var available_tools: Array[Tool] = []
 var available_tool_sprites: Dictionary[int, Sprite2D] = {}
-var first_tool_position: Vector2 = Vector2(-4, 43)
 var level_name: String = "change me in scene tree"
+
+var world_tiles: TileMapLayer
+var entity_tiles: TileMapLayer
+var initial_world_state: PackedByteArray
+var initial_entity_world_state: PackedByteArray
 
 # tool/planting related state.
 var current_tool: Tool = Tool.NONE
 var plantable_tiles: Array[Vector2i]
 var planted_amounts: Dictionary[Tool, int]
 
-@onready var world_tiles: TileMapLayer = $WorldTiles
-@onready var entity_tiles: TileMapLayer = $EntityTiles
-
-var initial_world_state: PackedByteArray
-var initial_entity_world_state: PackedByteArray
-
+# TODO: completion state from seedbag, but probably needs an update..
 var completed: bool = false
 signal complete
 
@@ -133,6 +138,8 @@ func can_plant_flower_on_spot(mine: Vector2i, target: Vector2i) -> bool:
 #endregion
 
 func _ready() -> void:
+	world_tiles = $WorldTiles
+	entity_tiles = $EntityTiles
 	initial_world_state = world_tiles.tile_map_data
 	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
 	
@@ -148,7 +155,6 @@ func _ready() -> void:
 			available_tools.append(tool)
 		planted_amounts[tool] = 0
 	
-	# order must be the same as Tool enum: Rose, Sunflower, Lavender, ...
 	for idx in available_tools.size():
 		var tool := available_tools[idx]
 		var spr := Sprite2D.new()
@@ -158,12 +164,13 @@ func _ready() -> void:
 		
 		$Toolbar.add_child(spr)
 		
-		spr.global_position = first_tool_position + (Vector2.RIGHT * 10 * idx)
+		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 10 * idx)
 		
 		available_tool_sprites[tool] = spr
 		
 	$Indicator.hide()
 
+#region undo + reset
 # FIXME (sam): need to record players properly!!
 func push_undo_state():
 	var state = UndoState.new()
@@ -173,6 +180,14 @@ func push_undo_state():
 		continue
 	
 	undo_stack.push_back(state)
+
+# FIXME (sam): record players properly!!!
+func undo() -> void:
+	assert(false, "undo not implemented for this version...")
+	if len(undo_stack) < 1:
+		return
+	
+	var state: UndoState = undo_stack.pop_back()
 
 # basically similar to the init.
 func reset() -> void:
@@ -185,14 +200,7 @@ func reset() -> void:
 		planted_amounts[flower] = 0
 	
 	last_move_was_reset = true
-
-# FIXME (sam): record players properly!!!
-func undo() -> void:
-	assert(false, "undo not implemented for this version...")
-	if len(undo_stack) < 1:
-		return
-	
-	var state: UndoState = undo_stack.pop_back()
+#endregion
 
 func tool_text(tool: Tool) -> String:
 	if tool in FLOWER_TOOLS:
@@ -201,6 +209,9 @@ func tool_text(tool: Tool) -> String:
 		return "tools"
 
 func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool:
+	if flower == Tool.NONE:
+		return false
+	
 	var atlas := FLOWER_TOOL_TO_ATLAS[flower]
 	if can_plant_flower_on_spot(atlas, target) and planted_amounts[flower] < starting_amounts[flower]:
 		world_tiles.set_cell(tilepos, 0, atlas)
