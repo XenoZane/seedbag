@@ -3,13 +3,20 @@ extends Node
 # TODO (sam): sort of ripping puzzlescript here. we will just go through scenes, check if "completed"
 #             (if they are info text, then thats just a button press), and go next.
 var levels := [
-	"res://levels/text1.tscn",
-	"res://levels/trample_easy.tscn",
-	"res://levels/trample_another.tscn",
-	"res://levels/trample_4corners.tscn",
-	"res://levels/trample_3corners.tscn",
-	"res://levels/trample_II.tscn",
-	"res://levels/text2.tscn",
+	"res://newlevels/text1.tscn",
+	"res://newlevels/garden_black1.tscn",
+	"res://newlevels/garden_black2.tscn",
+	"res://newlevels/garden_black3.tscn",
+	"res://newlevels/garden_black4.tscn",
+	"res://newlevels/garden_black5.tscn",
+	"res://newlevels/text2.tscn",
+	#"res://levels/text1.tscn",
+	#"res://levels/trample_easy.tscn",
+	#"res://levels/trample_another.tscn",
+	#"res://levels/trample_4corners.tscn",
+	#"res://levels/trample_3corners.tscn",
+	#"res://levels/trample_II.tscn",
+	#"res://levels/text2.tscn",
 ]
 var current_level := 0
 
@@ -22,7 +29,7 @@ var current_state: State = State.MAIN_MENU
 var currently_loading_level: int = 0
 # maybe a misnomer, but just the "wait time" before level transition, so you can take in that you won or w/e.
 # akin to victory screen/fadeout
-var load_minimum_time: float = 0.2
+var load_minimum_time: float = 1.0
 var load_minimum_timer: float = 0
 
 # TODO (sam): should we also save undo stack? we _could_. might be nice?
@@ -66,6 +73,8 @@ func save_game() -> void:
 		savefile.store_64(current_level)
 
 func new_game() -> void:
+	current_level = 0
+	save_game()
 	load_level_in_background(0)
 
 func continue_game() -> void:
