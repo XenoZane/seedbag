@@ -61,6 +61,15 @@ var initial_entity_world_state: PackedByteArray
 var completed: bool = false
 signal complete
 
+func is_rose(atlas: Vector2i) -> bool:
+	return atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]
+
+func is_sunflower(atlas: Vector2i) -> bool:
+	return atlas in [YELLOW_ATLAS, YELLOW_FIXED_ATLAS]
+
+func is_xflower(atlas: Vector2i) -> bool:
+	return atlas in [RED_ATLAS, RED_FIXED_ATLAS]
+
 func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
 	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
@@ -122,7 +131,6 @@ func undo() -> void:
 		return
 	
 	var state: UndoState = undo_stack.pop_back()
-	
 
 func _input(event: InputEvent) -> void:
 	# things to "reset" in the UI, will update if the state calls for it.
@@ -169,7 +177,6 @@ func _input(event: InputEvent) -> void:
 				$Indicator.show()
 
 	if event is InputEventMouseButton:
-		$Indicator.show()
 		
 		var mousepos: Vector2 = get_global_mouse_position()
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -247,140 +254,72 @@ func is_flower(atlas: Vector2i) -> bool:
 
 func same_flower(atlas1: Vector2i, atlas2: Vector2i) -> bool:
 	return is_flower(atlas1) and is_flower(atlas2) and (atlas1 == atlas2 or atlas1 == atlas2 + Vector2i.UP or atlas2 == atlas1 + Vector2i.UP)
+
+func tile_follows_rule(atlas: Vector2i, coords: Vector2i, valid_xflowers: Array[Vector2i]) -> bool:
+	const adjacents: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.RIGHT, Vector2i.LEFT]
+	if is_rose(atlas):
+		# 1. ensure no roses are adjacent
+		for direction in adjacents:
+			var adj_neighbor := world_tiles.get_cell_atlas_coords(coords + direction)
+			if is_rose(adj_neighbor):
+				print("[RULE VIOLATION]: rose has adjacent rose.")
+				return false
+			
+		# 2. ensure rose exists on horz or vert. axis, unblocked by walls.
+		var extents := world_tiles.get_used_rect()
+		var left_check = [coords.x - 1, extents.position.x, -1]
+		var right_check = [coords.x + 1, extents.end.x, 1]
+		var top_check = [coords.y - 1, extents.position.y, -1]
+		var bottom_check = [coords.y + 1, extents.end.y, 1]
+		var found_any_rose := false
+		for linecheck in [left_check, right_check, top_check, bottom_check]:
+			var linestart: int = linecheck[0]
+			var lineend: int = linecheck[1]
+			var iteration_dir: int = linecheck[2]
+			for i in range(linestart, lineend, iteration_dir):
+				var other := world_tiles.get_cell_atlas_coords(Vector2i(i, coords.y))
+				if other == WALL_ATLAS:
+					break
+				elif is_rose(other):
+					found_any_rose = true
+					break
+		if not found_any_rose:
+			print("[RULE VIOLATION]: rose has no roses in line of sight.")
+			return false
+
+	elif is_sunflower(atlas):
+		# 1. ensure exactly 1 above/below and exactly 1 left/right
+		var left_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.LEFT)
+		var right_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.RIGHT)
+		if is_sunflower(left_tile) and is_sunflower(right_tile):
+			print("[RULE VIOLATION]: white flower is in a horizontal line of 3+ white flowers.")
+			return false
+			
+		var up_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.UP)
+		var down_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.DOWN)
+		if is_sunflower(up_tile) and is_sunflower(down_tile):
+			print("[RULE VIOLATION]: white flower is in a vertical line of 3+ white flowers.")
+			return false
+		
+		if not is_sunflower(up_tile) \
+			and not is_sunflower(down_tile) \
+			and not is_sunflower(left_tile) \
+			and not is_sunflower(right_tile):
+			print("[RULE VIOLATION]: sunflower has no neighbors.")
+			return false
+
+	elif is_xflower(atlas):
+		return false
+	
+	return true
 	
 func all_rules_followed() -> bool:
-	var found_black_violation := false
-	var found_white_violation := false
-	var found_x_violation := false
-	
-	const adjacents: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.RIGHT, Vector2i.LEFT]
-	
+	var valid_xflowers: Array[Vector2i] = []
 	for coords: Vector2i in world_tiles.get_used_cells():
 		var tile := world_tiles.get_cell_atlas_coords(coords)
-		if tile == PINK_ATLAS or tile == PINK_FIXED_ATLAS:
-			# 1. ensure no black flowers adjacent
-			for direction in adjacents:
-				var adj_neighbor := world_tiles.get_cell_atlas_coords(coords + direction)
-				if adj_neighbor in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					print("[RULE VIOLATION]: black flower has adjacent black flower.")
-					found_black_violation = true
-					break
-			if found_black_violation:
-				break
-			
-			# 2. ensure black exists on horz or vert. axis, unblocked by walls.
-			var extents := world_tiles.get_used_rect()
-			var left_x: int = extents.position.x
-			var right_x: int = extents.end.x
-			var top_y: int = extents.position.y
-			var bottom_y: int = extents.end.y
-			var found_any_black_flower := false
-			for i in range(coords.x - 1, left_x, -1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(i, coords.y))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			for i in range(coords.x + 1, right_x, 1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(i, coords.y))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			for i in range(coords.y - 1, top_y, -1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(coords.x, i))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			for i in range(coords.y + 1, bottom_y, 1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(coords.x, i))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			found_black_violation = not found_any_black_flower
-			if found_black_violation:
-				print("[RULE VIOLATION]: black flower has no black flowers in line of sight.")
-				break
-		elif tile == YELLOW_ATLAS or tile == YELLOW_FIXED_ATLAS:
-			# 1. ensure 1 above/below and 1 left/right
-			var found_neighbor := false
-			for direction in adjacents:
-				var adj_neighbor := world_tiles.get_cell_atlas_coords(coords + direction)
-				if adj_neighbor in [YELLOW_ATLAS, YELLOW_FIXED_ATLAS]:
-					found_neighbor = true
-					break
-			if not found_neighbor:
-				print("[RULE VIOLATION]: sunflower has no neighbors.")
-				found_white_violation = true
-				break
-			
-			var left_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.LEFT)
-			var right_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.RIGHT)
-			if left_tile in [YELLOW_ATLAS, YELLOW_FIXED_ATLAS] and right_tile in [YELLOW_ATLAS, YELLOW_FIXED_ATLAS]:
-				found_white_violation = true
-				print("[RULE VIOLATION]: white flower is in a horizontal line of 3+ white flowers.")
-				break
-				
-			var up_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.UP)
-			var down_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.DOWN)
-			if up_tile in [YELLOW_ATLAS, YELLOW_FIXED_ATLAS] and down_tile in [YELLOW_ATLAS, YELLOW_FIXED_ATLAS]:
-				found_white_violation = true
-				print("[RULE VIOLATION]: white flower is in a vertical line of 3+ white flowers.")
-				break
-		elif tile == RED_ATLAS or tile == RED_FIXED_ATLAS:
-			# 1. ensure black exists on horz or vert. axis, unblocked by walls.
-			var extents := world_tiles.get_used_rect()
-			var left_x: int = extents.position.x
-			var right_x: int = extents.end.x
-			var top_y: int = extents.position.y
-			var bottom_y: int = extents.end.y
-			var found_any_black_flower := false
-			for i in range(coords.x - 1, left_x, -1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(i, coords.y))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			for i in range(coords.x + 1, right_x, 1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(i, coords.y))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			for i in range(coords.y - 1, top_y, -1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(coords.x, i))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			for i in range(coords.y + 1, bottom_y, 1):
-				var atlas := world_tiles.get_cell_atlas_coords(Vector2i(coords.x, i))
-				if atlas == WALL_ATLAS:
-					break
-				elif atlas in [PINK_ATLAS, PINK_FIXED_ATLAS]:
-					found_any_black_flower = true
-					break
-			found_black_violation = not found_any_black_flower
-			if found_black_violation:
-				print("[RULE VIOLATION]: black flower has no black flowers in line of sight.")
-				break
-			var left_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.LEFT)
-			var right_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.RIGHT)
-			var up_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.UP)
-			var down_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.DOWN)
-			return same_flower(left_tile, right_tile) or same_flower(up_tile, down_tile)
-			
-			
-	return not found_black_violation and not found_white_violation
+		if not tile_follows_rule(tile, coords, valid_xflowers):
+			return false
+	return true
 
 func _process(delta: float) -> void:
 	echo_pressed_delay -= delta
