@@ -7,6 +7,7 @@ var starting := false
 
 func _ready() -> void:
 	update_cursor_visuals()
+
 func update_cursor_visuals():
 	if selected == 0:
 		$NewGame.text = "# %s #" % new_game_text
@@ -22,9 +23,18 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("down"):
 		selected = posmod(selected + 1, 2)
 		update_cursor_visuals()
-	elif event.is_action_released("up"):
+	elif event.is_action_pressed("up"):
 		selected = posmod(selected - 1, 2)
 		update_cursor_visuals()
+	elif event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if selected == 0:
+				#$NewGame.text = "###### %s ######" % new_game_text
+				Manager.new_game()
+			elif selected == 1:
+				#$Continue.text = "###### %s ######" % continue_text
+				Manager.continue_game()
+			starting = true
 	elif event.is_action_pressed("action"):
 		if selected == 0:
 			#$NewGame.text = "###### %s ######" % new_game_text

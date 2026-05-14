@@ -16,6 +16,7 @@ var undo_stack: Array[UndoState] = []
 var last_move_was_reset: bool = false
 
 # tile atlases for the planting logic.
+const INVALID_ATLAS = Vector2i(-1, -1)
 const WALL_ATLAS = Vector2i(0, 0)
 const GRASS_ATLAS = Vector2i(0, 6)
 const SOIL_ATLAS = Vector2i(1, 6)
@@ -33,6 +34,8 @@ const SUNFLOWER_ATLAS = Vector2i(5, 5)
 const SUNFLOWER_FIXED_ATLAS = Vector2i(5, 6)
 const LAVENDER_ATLAS = Vector2i(3, 5)
 const LAVENDER_FIXED_ATLAS = Vector2i(3, 6)
+const GLORY_ATLAS = Vector2i(6, 5)
+const GLORY_FIXED_ATLAS = Vector2i(6, 6)
 const FLOWER_ATLASES = [
 	ROSE_ATLAS,
 	ROSE_FIXED_ATLAS,
@@ -40,11 +43,14 @@ const FLOWER_ATLASES = [
 	SUNFLOWER_FIXED_ATLAS,
 	LAVENDER_ATLAS,
 	LAVENDER_FIXED_ATLAS,
+	GLORY_ATLAS,
+	GLORY_FIXED_ATLAS,
 ]
 const FLOWER_UNFIXED_ATLASES = [
 	ROSE_ATLAS,
 	SUNFLOWER_ATLAS,
 	LAVENDER_ATLAS,
+	GLORY_ATLAS,
 ]
 
 enum Tool {
@@ -52,18 +58,21 @@ enum Tool {
 	ROSE = 1,
 	SUNFLOWER = 2,
 	LAVENDER = 3,
+	GLORY = 4,
 }
-const FLOWER_TOOLS = [Tool.ROSE, Tool.SUNFLOWER, Tool.LAVENDER]
+const FLOWER_TOOLS = [Tool.ROSE, Tool.SUNFLOWER, Tool.LAVENDER, Tool.GLORY]
 
 const ROSE_TOOL_SPRITE_REGION := Rect2(32, 56, 8, 8)
 const SUNFLOWER_TOOL_SPRITE_REGION := Rect2(24, 56, 8, 8)
 const LAVENDER_TOOL_SPRITE_REGION := Rect2(40, 56, 8, 8)
+const GLORY_TOOL_SPRITE_REGION := Rect2(48, 56, 8, 8)
 # WARNING: order MUST be the same as Tool enum: None, Rose, Sunflower, Lavender, ...
 const TOOL_SPRITE_REGIONS: Array[Rect2] = [
 	Rect2(32, 0, 8, 8),  # invalid tool (None)
 	ROSE_TOOL_SPRITE_REGION, 
 	SUNFLOWER_TOOL_SPRITE_REGION, 
 	LAVENDER_TOOL_SPRITE_REGION,
+	GLORY_TOOL_SPRITE_REGION
 ]
 
 const FLOWER_ATLAS_TO_TOOL: Dictionary[Vector2i, int] = {
@@ -72,23 +81,28 @@ const FLOWER_ATLAS_TO_TOOL: Dictionary[Vector2i, int] = {
 	SUNFLOWER_ATLAS: Tool.SUNFLOWER,
 	SUNFLOWER_FIXED_ATLAS: Tool.SUNFLOWER,
 	LAVENDER_ATLAS: Tool.LAVENDER,
-	LAVENDER_FIXED_ATLAS: Tool.LAVENDER
+	LAVENDER_FIXED_ATLAS: Tool.LAVENDER,
+	GLORY_ATLAS: Tool.GLORY,
+	GLORY_FIXED_ATLAS: Tool.GLORY,
 }
 const FLOWER_TOOL_TO_ATLAS: Dictionary[int, Vector2i] = {
 	Tool.ROSE: ROSE_ATLAS,
 	Tool.SUNFLOWER: SUNFLOWER_ATLAS,
 	Tool.LAVENDER: LAVENDER_ATLAS,
+	Tool.GLORY: GLORY_ATLAS
 }
 const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 	Tool.ROSE: "roses",
 	Tool.SUNFLOWER: "sunnys",
 	Tool.LAVENDER: "lavens",
+	Tool.GLORY: "glory",
 }
 
 @export var starting_amounts: Dictionary[Tool, int] = {
 	Tool.ROSE: 1,
 	Tool.SUNFLOWER: 1,
 	Tool.LAVENDER: 1,
+	Tool.GLORY: 0,
 }
 #endregion
 
@@ -122,6 +136,9 @@ func is_sunflower(atlas: Vector2i) -> bool:
 
 func is_lavender(atlas: Vector2i) -> bool:
 	return atlas in [LAVENDER_ATLAS, LAVENDER_FIXED_ATLAS]
+
+func is_glory(atlas: Vector2i) -> bool:
+	return atlas in [GLORY_ATLAS, GLORY_FIXED_ATLAS]
 
 func is_planted(atlas: Vector2i) -> bool:
 	return atlas in FLOWER_UNFIXED_ATLASES
@@ -167,6 +184,13 @@ func _ready() -> void:
 		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 10 * idx)
 		
 		available_tool_sprites[tool] = spr
+
+	# load level data
+	var level_data := Manager.load_level(scene_file_path)
+	if level_data != null:
+		world_tiles.tile_map_data = level_data.tiles
+		current_tool = level_data.current_tool
+		planted_amounts = level_data.current_inventory.duplicate()
 		
 	$Indicator.hide()
 
@@ -202,14 +226,19 @@ func reset() -> void:
 	last_move_was_reset = true
 #endregion
 
+# TODO (sam): i just duplicated all rules followed, probably not needed, being lazy.
+func save_level_data() -> void:
+	Manager.save_level(world_tiles.tile_map_data, level_name, current_tool, planted_amounts.duplicate(), all_flowers_planted() and all_rules_followed())
+
 func tool_text(tool: Tool) -> String:
 	if tool in FLOWER_TOOLS:
 		return "%s x%d" % [FLOWER_TOOL_TEXT[tool], starting_amounts[tool] - planted_amounts[tool]]
 	else:
 		return "tools"
 
+# TODO: might become "try_use_tool"...
 func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool:
-	if flower == Tool.NONE:
+	if flower not in FLOWER_TOOLS:
 		return false
 	
 	var atlas := FLOWER_TOOL_TO_ATLAS[flower]
@@ -277,12 +306,15 @@ func _input(event: InputEvent) -> void:
 						$Indicator.show()
 						$Indicator.position = spr.global_position
 						break
+				save_level_data()
 				$Toolbar/ToolText.text = tool_text(current_tool)
 			# clicked in nextbar: try switching levels
 			elif $Nextbar/ColorRect.get_rect().has_point($Nextbar.to_local(mousepos)):
 				if $Nextbar/Prev.get_rect().has_point($Nextbar/Prev.to_local(mousepos)):
+					save_level_data()
 					Manager.prev_level()
 				elif $Nextbar/Next.get_rect().has_point($Nextbar/Next.to_local(mousepos)):
+					save_level_data()
 					Manager.next_level()
 			# clicked in tilemap: try using tools.
 			else:
@@ -293,24 +325,18 @@ func _input(event: InputEvent) -> void:
 				
 				# check for completion upon making any edit.
 				if did_plant:
-					for flower in FLOWER_TOOLS:
-						if planted_amounts[flower] < starting_amounts[flower]:
-							completed = false
-							return
-					if all_rules_followed():
+					if all_flowers_planted() and all_rules_followed():
 						completed = true
-						# complete.emit()
 					else:
 						completed = false
-
-	if completed:
-		$Toolbar/ToolText.text = "good job."
+					
+					save_level_data()
 
 #region rules
-func tile_follows_rule(atlas: Vector2i, coords: Vector2i, valid_lavenders: Array[Vector2i]) -> bool:
+func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 	if atlas in FLOWER_ATLASES:
 		assert(
-			is_rose(atlas) or is_sunflower(atlas) or is_lavender(atlas), 
+			is_rose(atlas) or is_sunflower(atlas) or is_lavender(atlas) or is_glory(atlas), 
 			"You made a new flower but didn't add a rule for it. Update tile_follows_rule() in garden.gd (and probably create is_flower()))"
 		)
 	
@@ -370,15 +396,87 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i, valid_lavenders: Array
 			return false
 
 	elif is_lavender(atlas):
+		var horz_line := find_lavender_line(coords, Vector2i.RIGHT)
+		if check_lavender_line(coords, horz_line):
+			return true
+		
+		var vert_line := find_lavender_line(coords, Vector2i.DOWN)
+		if check_lavender_line(coords, vert_line):
+			return true
+		
+		print("[RULE VIOLATION]: lavender is not an interior point in a valid line.")
 		return false
 	
-	return true
+	elif is_glory(atlas):
+		var found_soil: bool = false
+		var found_flower: bool = false
+		
+		for check_atlas in [
+			world_tiles.get_cell_atlas_coords(coords + Vector2i.LEFT),
+			world_tiles.get_cell_atlas_coords(coords + Vector2i.RIGHT),
+			world_tiles.get_cell_atlas_coords(coords + Vector2i.UP),
+			world_tiles.get_cell_atlas_coords(coords + Vector2i.DOWN),
+		]:
+			if is_flower(check_atlas): found_flower = true
+			if check_atlas == SOIL_ATLAS: found_soil = true
+		
+		return found_soil and found_flower
 	
+	return true
+
+func find_lavender_line(start: Vector2i, direction: Vector2i) -> Array[Vector2i]:
+	var line: Array[Vector2i] = [start]
+	
+	# check positive direction.
+	var offset := start + direction
+	while world_tiles.get_used_rect().has_point(offset):
+		var tile := world_tiles.get_cell_atlas_coords(offset)
+		if is_flower(tile):
+			line.push_back(offset)
+			if not is_lavender(tile):
+				break
+		else:
+			break
+		offset += direction
+	
+	# check negative direction.
+	offset = start - direction
+	while world_tiles.get_used_rect().has_point(offset):
+		var tile := world_tiles.get_cell_atlas_coords(offset)
+		if is_flower(tile):
+			line.push_front(offset)
+			if not is_lavender(tile):
+				break
+		else:
+			break
+		offset -= direction
+	
+	return line
+
+func check_lavender_line(coords: Vector2i, line: Array[Vector2i]) -> bool:
+	return (
+		line.size() >= 3
+		and coords != line[0]
+		and coords != line[-1]
+		and same_flower(
+			world_tiles.get_cell_atlas_coords(line[0]), 
+			world_tiles.get_cell_atlas_coords(line[-1])
+		) 
+		and line.slice(1, -1).all(
+			func (p: Vector2i): return is_lavender(world_tiles.get_cell_atlas_coords(p))
+		)
+	)
+
+func all_flowers_planted() -> bool:
+	for flower in starting_amounts:
+		if planted_amounts[flower] < starting_amounts[flower]:
+			return false
+	return true
+
 func all_rules_followed() -> bool:
-	var valid_lavenders: Array[Vector2i] = []
 	for coords: Vector2i in world_tiles.get_used_cells():
 		var tile := world_tiles.get_cell_atlas_coords(coords)
-		if not tile_follows_rule(tile, coords, valid_lavenders):
+		if not tile_follows_rule(tile, coords):
 			return false
 	return true
 #endregion

@@ -1,11 +1,11 @@
 [gd_scene format=4 uid="uid://b8o7fj3w0hp8k"]
 
-[ext_resource type="Script" uid="uid://beeufdvvsx4la" path="res://garden.gd" id="1_1i80v"]
-[ext_resource type="Texture2D" uid="uid://bq5qch2tnawj8" path="res://tiles.png" id="2_io1lo"]
-[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="3_ibjol"]
+[ext_resource type="Script" uid="uid://beeufdvvsx4la" path="res://garden.gd" id="1_58di3"]
+[ext_resource type="Texture2D" uid="uid://bq5qch2tnawj8" path="res://tiles.png" id="2_7qu4d"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="3_vx1uw"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_aqk2v"]
-texture = ExtResource("2_io1lo")
+texture = ExtResource("2_7qu4d")
 texture_region_size = Vector2i(8, 8)
 0:0/0 = 0
 1:0/0 = 0
@@ -53,7 +53,7 @@ tile_size = Vector2i(8, 8)
 sources/0 = SubResource("TileSetAtlasSource_aqk2v")
 
 [node name="Garden" type="Node2D" unique_id=881326934]
-script = ExtResource("1_1i80v")
+script = ExtResource("1_58di3")
 starting_amounts = Dictionary[int, int]({
 1: 1,
 2: 0,
@@ -83,7 +83,7 @@ offset_left = 1.0
 offset_top = -4.0
 offset_right = 53.0
 offset_bottom = 8.0
-theme_override_fonts/normal_font = ExtResource("3_ibjol")
+theme_override_fonts/normal_font = ExtResource("3_vx1uw")
 theme_override_font_sizes/normal_font_size = 12
 text = "tools"
 scroll_active = false
@@ -102,7 +102,7 @@ offset_left = 38.0
 offset_top = -4.0
 offset_right = 90.0
 offset_bottom = 8.0
-theme_override_fonts/normal_font = ExtResource("3_ibjol")
+theme_override_fonts/normal_font = ExtResource("3_vx1uw")
 theme_override_font_sizes/normal_font_size = 12
 text = "garden 2"
 scroll_active = false
@@ -110,17 +110,17 @@ horizontal_alignment = 1
 
 [node name="Next" type="Sprite2D" parent="Nextbar" unique_id=315079420]
 position = Vector2(121, 3)
-texture = ExtResource("2_io1lo")
+texture = ExtResource("2_7qu4d")
 region_enabled = true
 region_rect = Rect2(0, 72, 8, 8)
 
 [node name="Prev" type="Sprite2D" parent="Nextbar" unique_id=775001039]
 position = Vector2(7, 3)
-texture = ExtResource("2_io1lo")
+texture = ExtResource("2_7qu4d")
 region_enabled = true
 region_rect = Rect2(32, 72, 8, 8)
 
 [node name="Indicator" type="Sprite2D" parent="." unique_id=2061616039]
-texture = ExtResource("2_io1lo")
+texture = ExtResource("2_7qu4d")
 region_enabled = true
 region_rect = Rect2(0, 56, 8, 8)

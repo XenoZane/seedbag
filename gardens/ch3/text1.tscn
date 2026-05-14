@@ -1,10 +1,10 @@
-[gd_scene format=3 uid="uid://b26y3ni7ny476"]
+[gd_scene format=3 uid="uid://moa2vtws81mc"]
 
-[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_bty4w"]
-[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_1ttwt"]
+[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_xstfw"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_ntdnn"]
 
 [node name="Root" type="Node2D" unique_id=881326934]
-script = ExtResource("1_bty4w")
+script = ExtResource("1_xstfw")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
 offset_right = 128.0
@@ -15,11 +15,11 @@ color = Color(0, 0, 0, 1)
 offset_right = 128.0
 offset_bottom = 84.0
 theme_override_constants/line_separation = -4
-theme_override_fonts/normal_font = ExtResource("2_1ttwt")
+theme_override_fonts/normal_font = ExtResource("2_ntdnn")
 theme_override_font_sizes/normal_font_size = 12
-text = "thanks!
+text = "nice work.
 
-i've got some more plants for you later."
+we've got some lavender for you to plant now."
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
@@ -30,7 +30,7 @@ offset_left = 4.0
 offset_top = 81.0
 offset_right = 124.0
 offset_bottom = 96.0
-theme_override_fonts/normal_font = ExtResource("2_1ttwt")
+theme_override_fonts/normal_font = ExtResource("2_ntdnn")
 theme_override_font_sizes/normal_font_size = 12
 text = "X to continue"
 fit_content = true
