@@ -261,7 +261,7 @@ func reset() -> void:
 
 # TODO (sam): i just duplicated all rules followed, probably not needed, being lazy.
 func save_level_data() -> void:
-	Manager.save_level(world_tiles.tile_map_data, level_name, current_tool, planted_amounts.duplicate(), all_flowers_planted() and all_rules_followed())
+	Manager.save_level(world_tiles.tile_map_data, level_name, current_tool, planted_amounts.duplicate(), all_flowers_planted(), all_flowers_planted() and all_rules_followed())
 
 func tool_text(tool: Tool) -> String:
 	if tool in FLOWER_TOOLS:

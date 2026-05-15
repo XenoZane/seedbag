@@ -131,6 +131,7 @@ class LevelData:
 	var tiles: PackedByteArray
 	var current_tool: int
 	var current_inventory: Dictionary[int, int]
+	var all_planted: bool
 	var is_solved: bool
 
 var level_saves: Dictionary[String, LevelData] = {}
@@ -183,6 +184,15 @@ func chapter_cleared(chapter: int) -> bool:
 			return false
 	return true
 
+func current_chapter_cleared() -> bool:
+	return chapter_cleared(current_chapter)
+
+func all_seeds_placed(chapter: int) -> bool:
+	for level in chapters[chapter]:
+		if !level_saves[level].all_planted:
+				return false
+	return true
+
 func prev_chapter() -> void:
 	if current_level_in_chapter > 0:
 		currently_loading_chapter = current_chapter
@@ -201,8 +211,7 @@ func next_chapter() -> void:
 	if current_chapter < chapters.size():
 		if (
 			current_chapter == furthest_chapter 
-			and current_chapter in chapters_which_need_levels_saved 
-			and not chapter_cleared(current_chapter)
+			and current_chapter in chapters_which_need_levels_saved
 		):
 			go_to_hint_zone()
 		else:
@@ -227,15 +236,15 @@ func prev_level() -> void:
 		return
 		
 
-func next_level() -> void:
+func next_level(bypass_hintzone: bool = false) -> void:
 	if current_level_in_chapter < chapters[current_chapter].size() - 1:
 		currently_loading_level = current_level_in_chapter + 1
 		load_level_in_background(current_chapter, currently_loading_level)
 	elif current_chapter < chapters.size():
 		if (
 			current_chapter == furthest_chapter 
-			and current_chapter in chapters_which_need_levels_saved 
-			and not chapter_cleared(current_chapter)
+			and current_chapter in chapters_which_need_levels_saved
+			and !bypass_hintzone
 		):
 			go_to_hint_zone()
 		else:
@@ -247,6 +256,7 @@ func next_level() -> void:
 		print("hit end of levels!")
 		return
 
+
 func on_first_level() -> bool:
 	return current_chapter == 0 and current_level_in_chapter == 0
 
@@ -257,12 +267,15 @@ func on_last_level() -> bool:
 	return on_last_chapter() and current_level_in_chapter == (chapters[current_chapter].size() - 1)
 
 func go_to_hint_zone() -> void:
-	get_tree().change_scene_to_file("res://hintzone.tscn")
+	if all_seeds_placed(current_chapter):
+		get_tree().change_scene_to_file("res://hintzone/check_chapter.tscn")
+	else:
+		get_tree().change_scene_to_file("res://hintzone/seed_warning_check.tscn")
 
 func exit_hint_zone() -> void:
 	load_level_in_background(current_chapter, current_level_in_chapter)
 
-func save_level(tiles: PackedByteArray, level_name: String, current_tool: int, current_inventory: Dictionary[int, int], is_solved: bool) -> void:
+func save_level(tiles: PackedByteArray, level_name: String, current_tool: int, current_inventory: Dictionary[int, int], all_planted: bool, is_solved: bool) -> void:
 	var level_file_path: String = chapters[current_chapter][current_level_in_chapter]
 	if level_file_path in level_saves:
 		level_saves[level_file_path].was_this_level_saved = true
@@ -270,6 +283,7 @@ func save_level(tiles: PackedByteArray, level_name: String, current_tool: int, c
 		level_saves[level_file_path].tiles = tiles
 		level_saves[level_file_path].current_tool = current_tool
 		level_saves[level_file_path].current_inventory = current_inventory
+		level_saves[level_file_path].all_planted = all_planted
 		level_saves[level_file_path].is_solved = is_solved
 
 func load_level(path: String) -> LevelData:

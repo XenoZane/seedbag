@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://bxbfxkiv6rm7m"]
+
+[ext_resource type="Script" uid="uid://c1l7nk2rlm7c1" path="res://hintzone/hintzone_message.gd" id="1_j3waa"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_j3waa"]
+[ext_resource type="Texture2D" uid="uid://b5um5ghc0lttv" path="res://farmer.png" id="3_g5n21"]
+[ext_resource type="Texture2D" uid="uid://dutaghjjbcq0l" path="res://hintzone_buttons.png" id="4_g5n21"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7h6n8"]
+atlas = ExtResource("4_g5n21")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xirje"]
+atlas = ExtResource("4_g5n21")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b0qws"]
+atlas = ExtResource("4_g5n21")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n0owr"]
+atlas = ExtResource("4_g5n21")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l0mb3"]
+atlas = ExtResource("4_g5n21")
+region = Rect2(16, 16, 16, 16)
+
+[node name="MessageScene" type="Node2D" unique_id=881326934]
+script = ExtResource("1_j3waa")
+my_behavior = 1
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
+offset_top = 20.0
+offset_right = 256.0
+offset_bottom = 192.0
+color = Color(0, 0, 0, 1)
+
+[node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
+offset_left = 14.0
+offset_top = 20.0
+offset_right = 190.0
+offset_bottom = 164.0
+theme_override_fonts/normal_font = ExtResource("2_j3waa")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "think ya got the hang of 
+the [wave amp=16.0 freq=5.0 connected=1]rules[/wave]?
+
+click the check button and I'll check yer work, or press the arrow to go back and revise yer gardens."
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Farmer" type="Sprite2D" parent="." unique_id=1023608657]
+position = Vector2(224, 160)
+scale = Vector2(2, 2)
+texture = ExtResource("3_g5n21")
+region_enabled = true
+region_rect = Rect2(32, 0, 32, 32)
+
+[node name="Bubble" type="Sprite2D" parent="." unique_id=71482702]
+position = Vector2(178, 146)
+scale = Vector2(2, 2)
+texture = ExtResource("3_g5n21")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)
+
+[node name="BackButton" type="TextureButton" parent="." unique_id=108291168]
+offset_left = 57.0
+offset_top = 153.0
+offset_right = 73.0
+offset_bottom = 169.0
+scale = Vector2(2, 2)
+texture_normal = SubResource("AtlasTexture_7h6n8")
+texture_pressed = SubResource("AtlasTexture_7h6n8")
+texture_hover = SubResource("AtlasTexture_xirje")
+
+[node name="CheckButton" type="TextureButton" parent="." unique_id=1550477317]
+offset_left = 113.0
+offset_top = 153.0
+offset_right = 129.0
+offset_bottom = 169.0
+scale = Vector2(2, 2)
+texture_normal = SubResource("AtlasTexture_b0qws")
+texture_pressed = SubResource("AtlasTexture_n0owr")
+texture_hover = SubResource("AtlasTexture_l0mb3")
+
+[node name="Infobar" type="Node2D" parent="." unique_id=1972889149]
+scale = Vector2(2, 2)
+
+[node name="BGRect" type="ColorRect" parent="Infobar" unique_id=1998507947]
+offset_right = 128.0
+offset_bottom = 10.0
+color = Color(0.23921569, 0.21568628, 0.11372549, 1)
+
+[node name="LevelText" type="RichTextLabel" parent="Infobar" unique_id=168759317]
+offset_top = -2.0
+offset_right = 128.0
+offset_bottom = 10.0
+theme_override_fonts/normal_font = ExtResource("2_j3waa")
+theme_override_font_sizes/normal_font_size = 12
+scroll_active = false
+horizontal_alignment = 1
+
+[connection signal="mouse_entered" from="BackButton" to="." method="_on_back_button_mouse_entered"]
+[connection signal="mouse_exited" from="BackButton" to="." method="_on_back_button_mouse_exited"]
+[connection signal="pressed" from="BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="mouse_entered" from="CheckButton" to="." method="_on_check_button_mouse_entered"]
+[connection signal="mouse_exited" from="CheckButton" to="." method="_on_check_button_mouse_exited"]
+[connection signal="pressed" from="CheckButton" to="." method="_on_check_button_pressed"]
