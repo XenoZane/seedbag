@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_tas2e"]
 [ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_didua"]
+[ext_resource type="PackedScene" uid="uid://dya7v638vy3q3" path="res://nextbar.tscn" id="3_didua"]
 
 [node name="Root" type="Node2D" unique_id=881326934]
 script = ExtResource("1_tas2e")
@@ -36,3 +37,5 @@ text = "X to continue"
 fit_content = true
 scroll_active = false
 vertical_alignment = 1
+
+[node name="Nextbar" parent="." unique_id=1972889149 instance=ExtResource("3_didua")]

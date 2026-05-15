@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dya7v638vy3q3"]
+
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="1_f8dic"]
+[ext_resource type="Script" uid="uid://b38hkbubwe258" path="res://nextbar.gd" id="1_m30lh"]
+[ext_resource type="Texture2D" uid="uid://bq5qch2tnawj8" path="res://tiles.png" id="2_fjlhd"]
+
+[node name="Nextbar" type="Node2D" unique_id=1972889149]
+script = ExtResource("1_m30lh")
+
+[node name="BGRect" type="ColorRect" parent="." unique_id=1998507947]
+offset_right = 128.0
+offset_bottom = 10.0
+color = Color(0.23921569, 0.21568628, 0.11372549, 1)
+
+[node name="LevelText" type="RichTextLabel" parent="." unique_id=168759317]
+offset_left = 25.0
+offset_top = -2.0
+offset_right = 103.0
+offset_bottom = 10.0
+theme_override_fonts/normal_font = ExtResource("1_f8dic")
+theme_override_font_sizes/normal_font_size = 12
+text = "prev garden"
+scroll_active = false
+horizontal_alignment = 1
+
+[node name="PrevChapter" type="Sprite2D" parent="." unique_id=1366496636]
+position = Vector2(7, 5)
+texture = ExtResource("2_fjlhd")
+region_enabled = true
+region_rect = Rect2(48, 72, 8, 8)
+
+[node name="PrevGarden" type="Sprite2D" parent="." unique_id=320613518]
+position = Vector2(18, 5)
+texture = ExtResource("2_fjlhd")
+region_enabled = true
+region_rect = Rect2(16, 72, 8, 8)
+
+[node name="NextGarden" type="Sprite2D" parent="." unique_id=1440207632]
+position = Vector2(110, 5)
+texture = ExtResource("2_fjlhd")
+region_enabled = true
+region_rect = Rect2(0, 72, 8, 8)
+
+[node name="NextChapter" type="Sprite2D" parent="." unique_id=1461681496]
+position = Vector2(121, 5)
+texture = ExtResource("2_fjlhd")
+region_enabled = true
+region_rect = Rect2(32, 72, 8, 8)
+
+[node name="BigArrow" type="Sprite2D" parent="." unique_id=934391401]
+visible = false
+position = Vector2(117, 78)
+texture = ExtResource("2_fjlhd")
+region_enabled = true
+region_rect = Rect2(48, 0, 16, 16)

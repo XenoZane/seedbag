@@ -1,5 +1,7 @@
 extends Node2D
 
+@onready var nextbar: Nextbar = $Nextbar
+
 const REPEAY_DELAY: float = 0.2
 var echo_pressed_delay: float = 0.0
 
@@ -20,6 +22,8 @@ const INVALID_ATLAS = Vector2i(-1, -1)
 const WALL_ATLAS = Vector2i(0, 0)
 const GRASS_ATLAS = Vector2i(0, 6)
 const SOIL_ATLAS = Vector2i(1, 6)
+
+
 
 #region flower data
 # things in here need to get updated when you add a new flower.
@@ -111,7 +115,7 @@ const FIRST_TOOL_POSITION: Vector2 = Vector2(-4, 43)
 # stuff that is initialized dynamically on ready.
 var available_tools: Array[Tool] = []
 var available_tool_sprites: Dictionary[int, Sprite2D] = {}
-var level_name: String = "change me in scene tree"
+@export var level_name: String = "change me in garden inspector"
 
 var world_tiles: TileMapLayer
 var entity_tiles: TileMapLayer
@@ -160,7 +164,8 @@ func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
 	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
 	
-	level_name = $Nextbar/LevelText.text
+	nextbar.set_level_name(level_name)
+	nextbar.save_level_data.connect(save_level_data)
 	
 	for coords: Vector2i in world_tiles.get_used_cells():
 		var atlas := world_tiles.get_cell_atlas_coords(coords)
@@ -186,7 +191,7 @@ func _ready() -> void:
 		available_tool_sprites[tool] = spr
 
 	# load level data
-	var level_data := Manager.load_level(scene_file_path)
+	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
 	if level_data != null:
 		world_tiles.tile_map_data = level_data.tiles
 		current_tool = level_data.current_tool
@@ -257,9 +262,6 @@ func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool
 
 func _input(event: InputEvent) -> void:
 	# things to "reset" in the UI, will update if the state calls for it.
-	$Nextbar/LevelText.text = level_name
-	$Nextbar/Prev.region_rect = Rect2(32, 72, 8, 8)
-	$Nextbar/Next.region_rect = Rect2(0, 72, 8, 8)
 	
 	if event is InputEventMouseMotion:
 		$Indicator.hide()
@@ -274,14 +276,8 @@ func _input(event: InputEvent) -> void:
 					$Indicator.show()
 					$Indicator.position = spr.global_position
 					break
-		elif $Nextbar/ColorRect.get_rect().has_point($Nextbar.to_local(mousepos)):
+		elif nextbar.global_point_should_hide_indicator(mousepos):
 			$Indicator.hide()
-			if $Nextbar/Prev.get_rect().has_point($Nextbar/Prev.to_local(mousepos)):
-				$Nextbar/LevelText.text = "prev"
-				$Nextbar/Prev.region_rect = Rect2(24, 72, 8, 8)
-			elif $Nextbar/Next.get_rect().has_point($Nextbar/Next.to_local(mousepos)):
-				$Nextbar/LevelText.text = "next"
-				$Nextbar/Next.region_rect = Rect2(8, 72, 8, 8)
 		else:
 			$Toolbar/ToolText.text = tool_text(current_tool)
 			var tilepos = world_tiles.local_to_map(mousepos)
@@ -308,14 +304,6 @@ func _input(event: InputEvent) -> void:
 						break
 				save_level_data()
 				$Toolbar/ToolText.text = tool_text(current_tool)
-			# clicked in nextbar: try switching levels
-			elif $Nextbar/ColorRect.get_rect().has_point($Nextbar.to_local(mousepos)):
-				if $Nextbar/Prev.get_rect().has_point($Nextbar/Prev.to_local(mousepos)):
-					save_level_data()
-					Manager.prev_level()
-				elif $Nextbar/Next.get_rect().has_point($Nextbar/Next.to_local(mousepos)):
-					save_level_data()
-					Manager.next_level()
 			# clicked in tilemap: try using tools.
 			else:
 				var tilepos = world_tiles.local_to_map(mousepos)
@@ -331,6 +319,14 @@ func _input(event: InputEvent) -> void:
 						completed = false
 					
 					save_level_data()
+
+
+func _process(delta: float) -> void:
+	echo_pressed_delay -= delta
+	
+	if all_flowers_planted():
+		nextbar.show_big_arrow()
+
 
 #region rules
 func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
@@ -480,6 +476,3 @@ func all_rules_followed() -> bool:
 			return false
 	return true
 #endregion
-
-func _process(delta: float) -> void:
-	echo_pressed_delay -= delta
