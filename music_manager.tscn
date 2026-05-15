@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://t6gmopqo1w4v"]
+
+[ext_resource type="AudioStream" uid="uid://duvak3srn2mtx" path="res://mincer - bitrot - 02 do you feel ok-.ogg" id="1_tylfe"]
+
+[node name="MusicManager" type="Node" unique_id=1992455959]
+
+[node name="Music" type="AudioStreamPlayer" parent="." unique_id=2031083191]
+stream = ExtResource("1_tylfe")
+volume_db = -10.0
+autoplay = true
+bus = &"Music"

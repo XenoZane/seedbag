@@ -41,6 +41,12 @@ var chapters := [
 		"res://gardens/ch1/text1a.tscn",
 		"res://gardens/ch1/text1b.tscn",
 		"res://gardens/ch1/text1c.tscn",
+		"res://gardens/ch1/text1d.tscn",
+		"res://gardens/ch1/text1e.tscn",
+		"res://gardens/ch1/text1f.tscn",
+		"res://gardens/ch1/text1g.tscn",
+		"res://gardens/ch1/text1h.tscn",
+		"res://gardens/ch1/text1i.tscn",
 	],
 	
 	# "chapter 1"
@@ -49,20 +55,24 @@ var chapters := [
 		"res://gardens/ch2/garden_rose2.tscn",
 		"res://gardens/ch2/garden_rose3.tscn",
 		"res://gardens/ch2/garden_rose4.tscn",
-		"res://gardens/ch2/garden_rose5.tscn",
 		"res://gardens/ch2/garden_sunny1.tscn",
 		"res://gardens/ch2/garden_sunny2.tscn",
 		"res://gardens/ch2/garden_sunny3.tscn",
-		"res://gardens/ch2/garden_sunny4.tscn",
 		"res://gardens/ch2/garden_rs1.tscn",
-		"res://gardens/ch2/garden_rs2.tscn",
-		"res://gardens/ch2/garden_rs3.tscn",
-		"res://gardens/ch2/garden_rs4.tscn",
+		"res://gardens/ch2/garden_extra1.tscn",
+		"res://gardens/ch2/garden_extra2.tscn",
+		"res://gardens/ch2/garden_extra3.tscn",
 	],
 	
 	# transition
 	[
 		"res://gardens/ch3/text1.tscn",
+		"res://gardens/ch3/text2.tscn",
+		"res://gardens/ch3/text3.tscn",
+		"res://gardens/ch3/text4.tscn",
+		"res://gardens/ch3/text5.tscn",
+		"res://gardens/ch3/text6.tscn",
+		"res://gardens/ch3/text7.tscn",
 	],
 	
 	# "chapter 2" (lavenders)
@@ -71,16 +81,25 @@ var chapters := [
 		"res://gardens/ch4/garden_lav2.tscn",
 		"res://gardens/ch4/garden_lav3.tscn",
 		"res://gardens/ch4/garden_lav4.tscn",
-		"res://gardens/ch4/garden_lav4_1.tscn",
 		"res://gardens/ch4/garden_lav5.tscn",
 		"res://gardens/ch4/garden_lav6.tscn",
 		"res://gardens/ch4/garden_lav7.tscn",
 		"res://gardens/ch4/garden_lav8.tscn",
+		"res://gardens/ch4/garden_lav9.tscn",
+		"res://gardens/ch4/garden_lav10.tscn",
+		"res://gardens/ch4/garden_lav11.tscn",
 	],
 	
 	# transition
 	[
 		"res://gardens/ch5/text1.tscn",
+		"res://gardens/ch5/text2.tscn",
+		"res://gardens/ch5/text3.tscn",
+		"res://gardens/ch5/text4.tscn",
+		"res://gardens/ch5/text5.tscn",
+		"res://gardens/ch5/text6.tscn",
+		"res://gardens/ch5/text7.tscn",
+		"res://gardens/ch5/text8.tscn",
 	],
 	
 	# "chapter 3" (morning glories)
@@ -90,11 +109,9 @@ var chapters := [
 		"res://gardens/ch6/garden_glory3.tscn",
 		"res://gardens/ch6/garden_glory4.tscn",
 		"res://gardens/ch6/garden_glory5.tscn",
-		"res://gardens/ch6/garden_glory6.tscn",
 		"res://gardens/ch6/garden_glory7.tscn",
 		"res://gardens/ch6/garden_glory8.tscn",
 		"res://gardens/ch6/garden_glory9.tscn",
-		"res://gardens/ch6/garden_glory10.tscn",
 	],
 	
 	# transition....
@@ -167,13 +184,18 @@ func chapter_cleared(chapter: int) -> bool:
 	return true
 
 func prev_chapter() -> void:
-	if current_chapter > 0:
-		currently_loading_chapter = current_chapter - 1
+	if current_level_in_chapter > 0:
+		currently_loading_chapter = current_chapter
 		currently_loading_level = 0
 		load_level_in_background(currently_loading_chapter, currently_loading_level)
-	else:
-		print("hit first chapter!")
-		return
+	elif current_level_in_chapter == 0:
+		if current_chapter > 0:
+			currently_loading_chapter = current_chapter - 1
+			currently_loading_level = 0
+			load_level_in_background(currently_loading_chapter, currently_loading_level)
+		else:
+			print("hit first chapter!")
+			return
 
 func next_chapter() -> void:
 	if current_chapter < chapters.size():
@@ -224,6 +246,15 @@ func next_level() -> void:
 	else:
 		print("hit end of levels!")
 		return
+
+func on_first_level() -> bool:
+	return current_chapter == 0 and current_level_in_chapter == 0
+
+func on_last_chapter() -> bool:
+	return current_chapter == (chapters.size() - 1)
+
+func on_last_level() -> bool:
+	return on_last_chapter() and current_level_in_chapter == (chapters[current_chapter].size() - 1)
 
 func go_to_hint_zone() -> void:
 	get_tree().change_scene_to_file("res://hintzone.tscn")

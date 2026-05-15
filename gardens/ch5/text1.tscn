@@ -1,41 +1,44 @@
-[gd_scene format=3 uid="uid://c0j54ygv1wj18"]
+[gd_scene format=3 uid="uid://lnr5sov0pmo0"]
 
 [ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_tas2e"]
 [ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_didua"]
-[ext_resource type="PackedScene" uid="uid://dya7v638vy3q3" path="res://nextbar.tscn" id="3_didua"]
+[ext_resource type="Texture2D" uid="uid://b5um5ghc0lttv" path="res://farmer.png" id="3_didua"]
 
-[node name="Root" type="Node2D" unique_id=881326934]
+[node name="MessageScene" type="Node2D" unique_id=881326934]
 script = ExtResource("1_tas2e")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
-offset_right = 128.0
-offset_bottom = 96.0
+offset_top = 20.0
+offset_right = 256.0
+offset_bottom = 192.0
 color = Color(0, 0, 0, 1)
 
 [node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
-offset_right = 128.0
-offset_bottom = 84.0
-theme_override_constants/line_separation = -3
+offset_left = 14.0
+offset_top = 20.0
+offset_right = 190.0
+offset_bottom = 192.0
 theme_override_fonts/normal_font = ExtResource("2_didua")
 theme_override_font_sizes/normal_font_size = 12
-text = "nice work.
+bbcode_enabled = true
+text = "great work kiddo!
 
-we've got some morning glories for you to plant now."
+another perfect garden and another [wave amp=16.0 freq=5.0 connected=1]rule[/wave] mastered!"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Instructions" type="RichTextLabel" parent="." unique_id=1139385926]
-offset_left = 4.0
-offset_top = 81.0
-offset_right = 124.0
-offset_bottom = 96.0
-theme_override_fonts/normal_font = ExtResource("2_didua")
-theme_override_font_sizes/normal_font_size = 12
-text = "X to continue"
-fit_content = true
-scroll_active = false
-vertical_alignment = 1
+[node name="Farmer" type="Sprite2D" parent="." unique_id=1023608657]
+position = Vector2(224, 160)
+scale = Vector2(2, 2)
+texture = ExtResource("3_didua")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 32)
 
-[node name="Nextbar" parent="." unique_id=1972889149 instance=ExtResource("3_didua")]
+[node name="Bubble" type="Sprite2D" parent="." unique_id=71482702]
+position = Vector2(178, 146)
+scale = Vector2(2, 2)
+texture = ExtResource("3_didua")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)

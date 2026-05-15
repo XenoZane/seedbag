@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://6ep7b2auds5"]
+
+[ext_resource type="Texture2D" uid="uid://bq5qch2tnawj8" path="res://tiles.png" id="1_sgcln"]
+
+[node name="Indicator" type="Sprite2D" unique_id=2073783572]
+scale = Vector2(2, 2)
+texture = ExtResource("1_sgcln")
+region_enabled = true
+region_rect = Rect2(0, 56, 8, 8)

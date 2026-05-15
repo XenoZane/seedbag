@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://c13kh0a31n810"]
+
+[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_w7vcj"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_c1tmj"]
+[ext_resource type="Texture2D" uid="uid://b5um5ghc0lttv" path="res://farmer.png" id="3_c1tmj"]
+
+[node name="MessageScene" type="Node2D" unique_id=881326934]
+script = ExtResource("1_w7vcj")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
+offset_top = 20.0
+offset_right = 256.0
+offset_bottom = 192.0
+color = Color(0, 0, 0, 1)
+
+[node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
+offset_left = 14.0
+offset_top = 20.0
+offset_right = 190.0
+offset_bottom = 192.0
+theme_override_constants/line_separation = 0
+theme_override_fonts/normal_font = ExtResource("2_c1tmj")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "ya may need to wander the gardens to get a full picture of the rules. no need to get stuck on one!
+
+use the arrows up top to 'splore the gardens."
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Farmer" type="Sprite2D" parent="." unique_id=762425188]
+position = Vector2(224, 160)
+scale = Vector2(2, 2)
+texture = ExtResource("3_c1tmj")
+region_enabled = true
+region_rect = Rect2(96, 0, 32, 32)
+
+[node name="Bubble" type="Sprite2D" parent="." unique_id=1542253686]
+position = Vector2(178, 146)
+scale = Vector2(2, 2)
+texture = ExtResource("3_c1tmj")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://duvak3srn2mtx"
+path="res://.godot/imported/mincer - bitrot - 02 do you feel ok-.ogg-30621e9433142c1449dfe4f154a017be.oggvorbisstr"
+
+[deps]
+
+source_file="res://mincer - bitrot - 02 do you feel ok-.ogg"
+dest_files=["res://.godot/imported/mincer - bitrot - 02 do you feel ok-.ogg-30621e9433142c1449dfe4f154a017be.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=10.11
+bpm=0
+beat_count=0
+bar_beats=4

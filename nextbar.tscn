@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://bq5qch2tnawj8" path="res://tiles.png" id="2_fjlhd"]
 
 [node name="Nextbar" type="Node2D" unique_id=1972889149]
+scale = Vector2(2, 2)
 script = ExtResource("1_m30lh")
 
 [node name="BGRect" type="ColorRect" parent="." unique_id=1998507947]
@@ -29,11 +30,23 @@ texture = ExtResource("2_fjlhd")
 region_enabled = true
 region_rect = Rect2(48, 72, 8, 8)
 
+[node name="ClickArea" type="Polygon2D" parent="PrevChapter" unique_id=400688079]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(0, 0, 12.5, 0, 12.5, 10, 0, 10)
+
 [node name="PrevGarden" type="Sprite2D" parent="." unique_id=320613518]
 position = Vector2(18, 5)
 texture = ExtResource("2_fjlhd")
 region_enabled = true
 region_rect = Rect2(16, 72, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="PrevGarden" unique_id=2133898448]
+visible = false
+position = Vector2(-5.5, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(0, 0, 12.5, 0, 12.5, 10, 0, 10)
 
 [node name="NextGarden" type="Sprite2D" parent="." unique_id=1440207632]
 position = Vector2(110, 5)
@@ -41,11 +54,23 @@ texture = ExtResource("2_fjlhd")
 region_enabled = true
 region_rect = Rect2(0, 72, 8, 8)
 
+[node name="ClickArea" type="Polygon2D" parent="NextGarden" unique_id=1667021443]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(0, 0, 12.5, 0, 12.5, 10, 0, 10)
+
 [node name="NextChapter" type="Sprite2D" parent="." unique_id=1461681496]
 position = Vector2(121, 5)
 texture = ExtResource("2_fjlhd")
 region_enabled = true
 region_rect = Rect2(32, 72, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="NextChapter" unique_id=813659352]
+visible = false
+position = Vector2(-5.5, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(0, 0, 12.5, 0, 12.5, 10, 0, 10)
 
 [node name="BigArrow" type="Sprite2D" parent="." unique_id=934391401]
 visible = false
@@ -53,3 +78,9 @@ position = Vector2(117, 78)
 texture = ExtResource("2_fjlhd")
 region_enabled = true
 region_rect = Rect2(48, 0, 16, 16)
+
+[node name="ClickArea" type="Polygon2D" parent="BigArrow" unique_id=2144536716]
+visible = false
+position = Vector2(-5.5, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(-3.5, -2, 14.5, -2, 14.5, 12, -3.5, 12)

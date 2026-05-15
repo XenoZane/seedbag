@@ -2,41 +2,46 @@
 
 [ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_sv3pu"]
 [ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_piufb"]
-[ext_resource type="PackedScene" uid="uid://dya7v638vy3q3" path="res://nextbar.tscn" id="3_s7rge"]
+[ext_resource type="Texture2D" uid="uid://b5um5ghc0lttv" path="res://farmer.png" id="3_s7rge"]
 
-[node name="Root" type="Node2D" unique_id=881326934]
+[node name="MessageScene" type="Node2D" unique_id=881326934]
 script = ExtResource("1_sv3pu")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
+offset_top = 20.0
 offset_right = 256.0
 offset_bottom = 192.0
 color = Color(0, 0, 0, 1)
 
 [node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
-offset_left = 4.0
-offset_right = 252.0
+offset_left = 14.0
+offset_top = 20.0
+offset_right = 190.0
 offset_bottom = 192.0
 theme_override_constants/line_separation = 0
 theme_override_fonts/normal_font = ExtResource("2_piufb")
 theme_override_font_sizes/normal_font_size = 12
-text = "furthermore, every garden has a unique solution. 
+bbcode_enabled = true
+text = "it's like each flower's got its own [wave amp=16.0 freq=5.0 connected=1]secret rules[/wave]...
 
-uniqueness of solutions is a way to determine that you understand flowers' rules."
+huh?
+wuzzat?
+what are the [wave amp=16.0 freq=5.0 connected=1]rules[/wave]?"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Instructions" type="RichTextLabel" parent="." unique_id=1139385926]
-offset_left = 4.0
-offset_top = 173.0
-offset_right = 124.0
-offset_bottom = 188.0
-theme_override_fonts/normal_font = ExtResource("2_piufb")
-theme_override_font_sizes/normal_font_size = 12
-text = "click to continue"
-fit_content = true
-scroll_active = false
-vertical_alignment = 1
+[node name="Farmer" type="Sprite2D" parent="." unique_id=1888439677]
+position = Vector2(224, 160)
+scale = Vector2(2, 2)
+texture = ExtResource("3_s7rge")
+region_enabled = true
+region_rect = Rect2(64, 0, 32, 32)
 
-[node name="Nextbar" parent="." unique_id=1972889149 instance=ExtResource("3_s7rge")]
+[node name="Bubble" type="Sprite2D" parent="." unique_id=192412568]
+position = Vector2(178, 146)
+scale = Vector2(2, 2)
+texture = ExtResource("3_s7rge")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)

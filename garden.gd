@@ -1,6 +1,6 @@
-extends Node2D
+class_name Garden extends Node2D
 
-@onready var nextbar: Nextbar = $Nextbar
+@onready var nextbar: Nextbar
 
 const REPEAY_DELAY: float = 0.2
 var echo_pressed_delay: float = 0.0
@@ -97,9 +97,9 @@ const FLOWER_TOOL_TO_ATLAS: Dictionary[int, Vector2i] = {
 }
 const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 	Tool.ROSE: "roses",
-	Tool.SUNFLOWER: "sunnys",
-	Tool.LAVENDER: "lavens",
-	Tool.GLORY: "glory",
+	Tool.SUNFLOWER: "sunnies",
+	Tool.LAVENDER: "lavendah",
+	Tool.GLORY: "glories",
 }
 
 @export var starting_amounts: Dictionary[Tool, int] = {
@@ -110,8 +110,11 @@ const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 }
 #endregion
 
-const TOOLBAR_POSITION: Vector2 = Vector2(-64, 40)
-const FIRST_TOOL_POSITION: Vector2 = Vector2(-4, 43)
+# UI layout stuff
+const NEXTBAR_POSITION: Vector2 = Vector2(-128, -96)
+const TOOLBAR_POSITION: Vector2 = Vector2(-128, 76)
+const FIRST_TOOL_POSITION: Vector2 = Vector2(-8, 86)
+const TILEMAP_SCALE: Vector2 = Vector2(2.0, 2.0)
 
 @export var level_name: String = "change me"
 
@@ -121,9 +124,10 @@ var available_tools: Array[Tool] = []
 var available_tool_sprites: Dictionary[int, Sprite2D] = {}
 
 var world_tiles: TileMapLayer
-var entity_tiles: TileMapLayer
 var initial_world_state: PackedByteArray
-var initial_entity_world_state: PackedByteArray
+
+var grid_indicator_sprite: Sprite2D
+var tool_indicator_sprite: Sprite2D
 
 # tool/planting related state.
 var current_tool: Tool = Tool.NONE
@@ -164,16 +168,28 @@ func can_plant_flower_on_spot(mine: Vector2i, target: Vector2i) -> bool:
 
 func _ready() -> void:
 	world_tiles = $WorldTiles
-	entity_tiles = $EntityTiles
 	initial_world_state = world_tiles.tile_map_data
-	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
-
-	nextbar.set_level_name(level_name)
-	nextbar.save_level_data.connect(save_level_data)
+	world_tiles.scale = TILEMAP_SCALE
 	
+	# add grid indicator
+	grid_indicator_sprite = preload("res://indicator.tscn").instantiate()
+	add_child(grid_indicator_sprite)
+	
+	# add toolbar
 	toolbar = preload("res://toolbar.tscn").instantiate()
 	add_child(toolbar)
 	toolbar.global_position = TOOLBAR_POSITION
+	
+	# add tool indicator
+	tool_indicator_sprite = preload("res://indicator.tscn").instantiate()
+	add_child(tool_indicator_sprite)
+	
+	# add nextbar
+	nextbar = preload("res://nextbar.tscn").instantiate()
+	nextbar.set_level_name(level_name)
+	nextbar.save_level_data.connect(save_level_data)
+	add_child(nextbar)
+	nextbar.global_position = NEXTBAR_POSITION
 	
 	for coords: Vector2i in world_tiles.get_used_cells():
 		var atlas := world_tiles.get_cell_atlas_coords(coords)
@@ -191,10 +207,14 @@ func _ready() -> void:
 		spr.texture = preload("res://tiles.png")
 		spr.region_enabled = true
 		spr.region_rect = TOOL_SPRITE_REGIONS[tool]
-		
 		toolbar.add_child(spr)
+		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 40 * idx)
 		
-		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 10 * idx)
+		
+		var label_global_pos: Vector2 = FIRST_TOOL_POSITION + (Vector2.RIGHT * (40 * idx + 10)) + (Vector2.UP * 14)
+		var amount: int = starting_amounts[tool]
+		toolbar.add_amount_label(label_global_pos, amount, tool)
+		
 		
 		available_tool_sprites[tool] = spr
 
@@ -205,10 +225,8 @@ func _ready() -> void:
 		current_tool = level_data.current_tool
 		planted_amounts = level_data.current_inventory.duplicate()
 	
-	# FIXME (sam): stupid hack cuz of toolbar being later in tree now. 
-	# might make it render above nextbar. idk.
-	$Indicator.z_index = 1
-	$Indicator.hide()
+	grid_indicator_sprite.hide()
+	tool_indicator_sprite.hide()
 
 #region undo + reset
 # FIXME (sam): need to record players properly!!
@@ -227,12 +245,11 @@ func undo() -> void:
 	if len(undo_stack) < 1:
 		return
 	
-	var state: UndoState = undo_stack.pop_back()
+	var _state: UndoState = undo_stack.pop_back()
 
 # basically similar to the init.
 func reset() -> void:
 	world_tiles.tile_map_data = initial_world_state
-	entity_tiles.tile_map_data = initial_entity_world_state
 	
 	current_tool = Tool.NONE
 	
@@ -248,9 +265,14 @@ func save_level_data() -> void:
 
 func tool_text(tool: Tool) -> String:
 	if tool in FLOWER_TOOLS:
-		return "%s x%d" % [FLOWER_TOOL_TEXT[tool], starting_amounts[tool] - planted_amounts[tool]]
+		#return "%s x%d" % [FLOWER_TOOL_TEXT[tool], starting_amounts[tool] - planted_amounts[tool]]
+		return FLOWER_TOOL_TEXT[tool]
 	else:
-		return "tools"
+		return "seeds"
+
+func update_toolbar_amounts() -> void:
+	for tool in available_tools:
+		toolbar.amount_labels[tool].text = str(starting_amounts[tool] - planted_amounts[tool])
 
 # TODO: might become "try_use_tool"...
 func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool:
@@ -275,7 +297,9 @@ func _input(event: InputEvent) -> void:
 	# things to "reset" in the UI, will update if the state calls for it.
 	
 	if event is InputEventMouseMotion:
-		$Indicator.hide()
+		grid_indicator_sprite.hide()
+		if current_tool == Tool.NONE:
+			tool_indicator_sprite.hide()
 		
 		var mousepos: Vector2 = get_global_mouse_position() # lol
 		
@@ -284,23 +308,23 @@ func _input(event: InputEvent) -> void:
 				var spr: Sprite2D = available_tool_sprites[tool]
 				if spr.get_rect().has_point(spr.to_local(mousepos)):
 					toolbar.set_tool_text(tool_text(tool))
-					$Indicator.show()
-					$Indicator.position = spr.global_position
+					tool_indicator_sprite.show()
+					tool_indicator_sprite.global_position = spr.global_position
 					break
 		elif nextbar.global_point_should_hide_indicator(mousepos):
-			$Indicator.hide()
+			grid_indicator_sprite.hide()
 		else:
 			toolbar.set_tool_text(tool_text(current_tool))
-			var tilepos = world_tiles.local_to_map(mousepos)
-			var tilesize = world_tiles.tile_set.tile_size
-			$Indicator.position = tilepos * tilesize + Vector2i.ONE * (tilesize / 2)
+			var tilepos = world_tiles.local_to_map(world_tiles.to_local(mousepos))
+			var tilesize = world_tiles.tile_set.tile_size * Vector2i(world_tiles.scale)
+			grid_indicator_sprite.position = tilepos * tilesize + Vector2i.ONE * (tilesize / 2)
 			
 			var atlas = world_tiles.get_cell_atlas_coords(tilepos)
 			if atlas == WALL_ATLAS:
-				$Indicator.hide()
+				grid_indicator_sprite.hide()
 			else:
-				$Indicator.show()
-
+				grid_indicator_sprite.show()
+	
 	if event is InputEventMouseButton:
 		var mousepos: Vector2 = get_global_mouse_position()
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -310,14 +334,14 @@ func _input(event: InputEvent) -> void:
 					var spr: Sprite2D = available_tool_sprites[tool]
 					if spr.get_rect().has_point(spr.to_local(mousepos)):
 						current_tool = tool
-						$Indicator.show()
-						$Indicator.position = spr.global_position
+						tool_indicator_sprite.show()
+						tool_indicator_sprite.position = spr.global_position
 						break
 				save_level_data()
 				toolbar.set_tool_text(tool_text(current_tool))
 			# clicked in tilemap: try using tools.
 			else:
-				var tilepos = world_tiles.local_to_map(mousepos)
+				var tilepos = world_tiles.local_to_map(world_tiles.to_local(mousepos))
 				var target = world_tiles.get_cell_atlas_coords(tilepos)
 				var did_plant := try_plant_flower(current_tool, target, tilepos)
 				toolbar.set_tool_text(tool_text(current_tool))
@@ -329,6 +353,7 @@ func _input(event: InputEvent) -> void:
 					else:
 						completed = false
 					
+					update_toolbar_amounts()
 					save_level_data()
 
 
@@ -337,6 +362,8 @@ func _process(delta: float) -> void:
 	
 	if all_flowers_planted():
 		nextbar.show_big_arrow()
+	else:
+		nextbar.hide_big_arrow()
 
 
 #region rules

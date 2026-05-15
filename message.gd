@@ -1,9 +1,13 @@
-extends Node2D
+class_name MessageScene extends Node2D
 
-@onready var nextbar: Nextbar = $Nextbar
+var nextbar: Nextbar
+const NEXTBAR_POSITION: Vector2 = Vector2(0, 0)
 
 func _ready() -> void:
+	nextbar = preload("res://nextbar.tscn").instantiate()
 	nextbar.set_level_name("")
+	add_child(nextbar)
+	nextbar.global_position = NEXTBAR_POSITION
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
