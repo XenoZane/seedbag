@@ -28,11 +28,15 @@ const NEXT_CHAPTER_HOVER_RECT = Rect2(32+8, 72, 8, 8)
 const BIG_ARROW_RECT = Rect2(48, 0, 16, 16)
 const BIG_ARROW_HOVER_RECT = Rect2(48+16, 0, 16, 16)
 
+var prev_garden_hovered_from_entrance: bool = false
+var next_garden_hovered_from_entrance: bool = false
+var prev_chapter_hovered_from_entrance: bool = false
+var next_chapter_hovered_from_entrance: bool = false
+
 @onready var bg_rect: ColorRect = $BGRect
 
 func _ready() -> void:
 	big_arrow_sprite.hide()
-	update_hover_visuals()
 	
 	if Manager.on_first_level():
 		prev_garden_sprite.hide()
@@ -41,12 +45,9 @@ func _ready() -> void:
 		next_chapter_sprite.hide()
 	if Manager.on_last_level():
 		next_garden_sprite.hide()
-	
 
 func _input(event: InputEvent) -> void:
-	
 	var mousepos: Vector2 = get_global_mouse_position()
-	
 	if event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			# clicked in nextbar: try switching levels
@@ -70,24 +71,46 @@ func _input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	update_hover_visuals()
 
-func update_hover_visuals() -> void:
+func update_hover_visuals(on_entry: bool = false) -> void:
 	prev_chapter_sprite.region_rect = PREV_CHAPTER_RECT
 	prev_garden_sprite.region_rect = PREV_GARDEN_RECT
 	next_garden_sprite.region_rect = NEXT_GARDEN_RECT
 	next_chapter_sprite.region_rect = NEXT_CHAPTER_RECT
 	big_arrow_sprite.region_rect = BIG_ARROW_RECT
 	var mousepos: Vector2 = get_global_mouse_position()
-	if prev_chapter_sprite.visible and Geometry2D.is_point_in_polygon(prev_chapter_click_area.to_local(mousepos), prev_chapter_click_area.polygon):
-		level_text.text = "prev chapter"
+	
+	var prev_chapter_hovered := prev_chapter_sprite.visible and Geometry2D.is_point_in_polygon(prev_chapter_click_area.to_local(mousepos), prev_chapter_click_area.polygon)
+	var prev_garden_hovered := prev_garden_sprite.visible and Geometry2D.is_point_in_polygon(prev_garden_click_area.to_local(mousepos), prev_garden_click_area.polygon)
+	var next_garden_hovered := next_garden_sprite.visible and Geometry2D.is_point_in_polygon(next_garden_click_area.to_local(mousepos), next_garden_click_area.polygon)
+	var next_chapter_hovered := next_chapter_sprite.visible and Geometry2D.is_point_in_polygon(next_chapter_click_area.to_local(mousepos), next_chapter_click_area.polygon)
+	
+	if on_entry:
+		prev_chapter_hovered_from_entrance = prev_chapter_hovered
+		prev_garden_hovered_from_entrance = prev_garden_hovered
+		next_garden_hovered_from_entrance = next_garden_hovered
+		next_chapter_hovered_from_entrance = next_chapter_hovered
+		print("on entry: pc=%s, pg=%s, ng=%s, nc=%s" % [prev_chapter_hovered_from_entrance, prev_garden_hovered_from_entrance, next_garden_hovered_from_entrance, next_chapter_hovered_from_entrance])
+	else:
+		if prev_chapter_hovered_from_entrance and not prev_chapter_hovered:
+			prev_chapter_hovered_from_entrance = false
+		if prev_garden_hovered_from_entrance and not prev_garden_hovered:
+			prev_garden_hovered_from_entrance = false
+		if next_garden_hovered_from_entrance and not next_garden_hovered:
+			next_garden_hovered_from_entrance = false
+		if next_chapter_hovered_from_entrance and not next_chapter_hovered:
+			next_chapter_hovered_from_entrance = false
+	
+	if prev_chapter_hovered:
+		level_text.text = "prev chapter" if not prev_chapter_hovered_from_entrance else level_name
 		prev_chapter_sprite.region_rect = PREV_CHAPTER_HOVER_RECT
-	elif prev_garden_sprite.visible and Geometry2D.is_point_in_polygon(prev_garden_click_area.to_local(mousepos), prev_garden_click_area.polygon):
-		level_text.text = "prev garden"
+	elif prev_garden_hovered:
+		level_text.text = "prev garden" if not prev_garden_hovered_from_entrance else level_name
 		prev_garden_sprite.region_rect = PREV_GARDEN_HOVER_RECT
-	elif next_garden_sprite.visible and Geometry2D.is_point_in_polygon(next_garden_click_area.to_local(mousepos), next_garden_click_area.polygon):
-		level_text.text = "next garden"
+	elif next_garden_hovered:
+		level_text.text = "next garden" if not next_garden_hovered_from_entrance else level_name
 		next_garden_sprite.region_rect = NEXT_GARDEN_HOVER_RECT
-	elif next_chapter_sprite.visible and Geometry2D.is_point_in_polygon(next_chapter_click_area.to_local(mousepos), next_chapter_click_area.polygon):
-		level_text.text = "next chapter"
+	elif next_chapter_hovered:
+		level_text.text = "next chapter" if not next_chapter_hovered_from_entrance else level_name
 		next_chapter_sprite.region_rect = NEXT_CHAPTER_HOVER_RECT
 	elif big_arrow_sprite.visible and Geometry2D.is_point_in_polygon(big_arrow_click_area.to_local(mousepos), big_arrow_click_area.polygon):
 		level_text.text = "all done?"

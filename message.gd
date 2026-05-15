@@ -8,6 +8,8 @@ func _ready() -> void:
 	nextbar.set_level_name("")
 	add_child(nextbar)
 	nextbar.global_position = NEXTBAR_POSITION
+	
+	nextbar.update_hover_visuals(true)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:

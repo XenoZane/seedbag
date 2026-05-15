@@ -191,6 +191,8 @@ func _ready() -> void:
 	add_child(nextbar)
 	nextbar.global_position = NEXTBAR_POSITION
 	
+	nextbar.update_hover_visuals(true)
+	
 	for coords: Vector2i in world_tiles.get_used_cells():
 		var atlas := world_tiles.get_cell_atlas_coords(coords)
 		if atlas == SOIL_ATLAS:
@@ -261,7 +263,15 @@ func reset() -> void:
 
 # TODO (sam): i just duplicated all rules followed, probably not needed, being lazy.
 func save_level_data() -> void:
-	Manager.save_level(world_tiles.tile_map_data, level_name, current_tool, planted_amounts.duplicate(), all_flowers_planted(), all_flowers_planted() and all_rules_followed())
+	var all_planted := all_flowers_planted()
+	Manager.save_level(
+		world_tiles.tile_map_data, 
+		level_name, 
+		current_tool, 
+		planted_amounts.duplicate(), 
+		all_planted, 
+		all_planted and all_rules_followed()
+	)
 
 func tool_text(tool: Tool) -> String:
 	if tool in FLOWER_TOOLS:
@@ -295,7 +305,6 @@ func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool
 
 func _input(event: InputEvent) -> void:
 	# things to "reset" in the UI, will update if the state calls for it.
-	
 	if event is InputEventMouseMotion:
 		grid_indicator_sprite.hide()
 		if current_tool == Tool.NONE:

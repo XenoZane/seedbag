@@ -20,7 +20,6 @@ offset_right = 103.0
 offset_bottom = 10.0
 theme_override_fonts/normal_font = ExtResource("1_f8dic")
 theme_override_font_sizes/normal_font_size = 12
-text = "prev garden"
 scroll_active = false
 horizontal_alignment = 1
 
