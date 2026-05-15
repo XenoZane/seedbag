@@ -7,14 +7,15 @@
 script = ExtResource("1_ulyts")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
-offset_right = 128.0
-offset_bottom = 96.0
+offset_right = 256.0
+offset_bottom = 192.0
 color = Color(0, 0, 0, 1)
 
 [node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
-offset_right = 128.0
-offset_bottom = 84.0
-theme_override_constants/line_separation = -4
+offset_left = 4.0
+offset_right = 252.0
+offset_bottom = 192.0
+theme_override_constants/line_separation = 0
 theme_override_fonts/normal_font = ExtResource("2_fi7mu")
 theme_override_font_sizes/normal_font_size = 12
 text = "you may want to wander the gardens. there's no need to get stuck on one!"
@@ -25,9 +26,9 @@ vertical_alignment = 1
 
 [node name="Instructions" type="RichTextLabel" parent="." unique_id=1139385926]
 offset_left = 4.0
-offset_top = 81.0
+offset_top = 173.0
 offset_right = 124.0
-offset_bottom = 96.0
+offset_bottom = 188.0
 theme_override_fonts/normal_font = ExtResource("2_fi7mu")
 theme_override_font_sizes/normal_font_size = 12
 text = "click to continue"

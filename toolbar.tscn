@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://drq3bmpfjv7an"]
+
+[ext_resource type="Script" uid="uid://46gf61lcyjdi" path="res://toolbar.gd" id="1_mkecw"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="1_n24sb"]
+
+[node name="Toolbar" type="Node2D" unique_id=797597868]
+script = ExtResource("1_mkecw")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1103617173]
+offset_top = -2.0
+offset_right = 128.0
+offset_bottom = 8.0
+color = Color(0.23921569, 0.21568628, 0.11372549, 1)
+
+[node name="ToolText" type="RichTextLabel" parent="." unique_id=658625800]
+offset_left = 1.0
+offset_top = -4.0
+offset_right = 53.0
+offset_bottom = 8.0
+theme_override_fonts/normal_font = ExtResource("1_n24sb")
+theme_override_font_sizes/normal_font_size = 12
+text = "tools"
+scroll_active = false

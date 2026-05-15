@@ -68,25 +68,6 @@ tile_set = SubResource("TileSet_036b0")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=307886460]
 
-[node name="Toolbar" type="Node2D" parent="." unique_id=792377098]
-position = Vector2(-64, 40)
-
-[node name="ColorRect" type="ColorRect" parent="Toolbar" unique_id=1709305752]
-offset_top = -2.0
-offset_right = 128.0
-offset_bottom = 8.0
-color = Color(0.23921569, 0.21568628, 0.11372549, 1)
-
-[node name="ToolText" type="RichTextLabel" parent="Toolbar" unique_id=1857967721]
-offset_left = 1.0
-offset_top = -4.0
-offset_right = 53.0
-offset_bottom = 8.0
-theme_override_fonts/normal_font = ExtResource("3_nr8wy")
-theme_override_font_sizes/normal_font_size = 12
-text = "tools"
-scroll_active = false
-
 [node name="Nextbar" type="Node2D" parent="." unique_id=1120987530]
 position = Vector2(-64, -46)
 
