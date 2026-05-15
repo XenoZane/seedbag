@@ -110,12 +110,15 @@ const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 }
 #endregion
 
+const TOOLBAR_POSITION: Vector2 = Vector2(-64, 40)
 const FIRST_TOOL_POSITION: Vector2 = Vector2(-4, 43)
 
+@export var level_name: String = "change me"
+
 # stuff that is initialized dynamically on ready.
+var toolbar: Toolbar
 var available_tools: Array[Tool] = []
 var available_tool_sprites: Dictionary[int, Sprite2D] = {}
-@export var level_name: String = "change me in garden inspector"
 
 var world_tiles: TileMapLayer
 var entity_tiles: TileMapLayer
@@ -130,6 +133,7 @@ var planted_amounts: Dictionary[Tool, int]
 # TODO: completion state from seedbag, but probably needs an update..
 var completed: bool = false
 signal complete
+
 
 #region flower comparisons
 func is_rose(atlas: Vector2i) -> bool:
@@ -163,9 +167,13 @@ func _ready() -> void:
 	entity_tiles = $EntityTiles
 	initial_world_state = world_tiles.tile_map_data
 	initial_entity_world_state = entity_tiles.tile_map_data # need to save this for a reset.
-	
+
 	nextbar.set_level_name(level_name)
 	nextbar.save_level_data.connect(save_level_data)
+	
+	toolbar = preload("res://toolbar.tscn").instantiate()
+	add_child(toolbar)
+	toolbar.global_position = TOOLBAR_POSITION
 	
 	for coords: Vector2i in world_tiles.get_used_cells():
 		var atlas := world_tiles.get_cell_atlas_coords(coords)
@@ -184,7 +192,7 @@ func _ready() -> void:
 		spr.region_enabled = true
 		spr.region_rect = TOOL_SPRITE_REGIONS[tool]
 		
-		$Toolbar.add_child(spr)
+		toolbar.add_child(spr)
 		
 		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 10 * idx)
 		
@@ -196,7 +204,10 @@ func _ready() -> void:
 		world_tiles.tile_map_data = level_data.tiles
 		current_tool = level_data.current_tool
 		planted_amounts = level_data.current_inventory.duplicate()
-		
+	
+	# FIXME (sam): stupid hack cuz of toolbar being later in tree now. 
+	# might make it render above nextbar. idk.
+	$Indicator.z_index = 1
 	$Indicator.hide()
 
 #region undo + reset
@@ -268,18 +279,18 @@ func _input(event: InputEvent) -> void:
 		
 		var mousepos: Vector2 = get_global_mouse_position() # lol
 		
-		if $Toolbar/ColorRect.get_rect().has_point($Toolbar.to_local(mousepos)):
+		if toolbar.contains_mouse(mousepos):
 			for tool in available_tools:
 				var spr: Sprite2D = available_tool_sprites[tool]
 				if spr.get_rect().has_point(spr.to_local(mousepos)):
-					$Toolbar/ToolText.text = tool_text(tool)
+					toolbar.set_tool_text(tool_text(tool))
 					$Indicator.show()
 					$Indicator.position = spr.global_position
 					break
 		elif nextbar.global_point_should_hide_indicator(mousepos):
 			$Indicator.hide()
 		else:
-			$Toolbar/ToolText.text = tool_text(current_tool)
+			toolbar.set_tool_text(tool_text(current_tool))
 			var tilepos = world_tiles.local_to_map(mousepos)
 			var tilesize = world_tiles.tile_set.tile_size
 			$Indicator.position = tilepos * tilesize + Vector2i.ONE * (tilesize / 2)
@@ -294,7 +305,7 @@ func _input(event: InputEvent) -> void:
 		var mousepos: Vector2 = get_global_mouse_position()
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			# clicked in toolbar: try select new tool
-			if $Toolbar/ColorRect.get_rect().has_point($Toolbar.to_local(mousepos)):
+			if toolbar.contains_mouse(mousepos):
 				for tool in available_tools:
 					var spr: Sprite2D = available_tool_sprites[tool]
 					if spr.get_rect().has_point(spr.to_local(mousepos)):
@@ -303,13 +314,13 @@ func _input(event: InputEvent) -> void:
 						$Indicator.position = spr.global_position
 						break
 				save_level_data()
-				$Toolbar/ToolText.text = tool_text(current_tool)
+				toolbar.set_tool_text(tool_text(current_tool))
 			# clicked in tilemap: try using tools.
 			else:
 				var tilepos = world_tiles.local_to_map(mousepos)
 				var target = world_tiles.get_cell_atlas_coords(tilepos)
 				var did_plant := try_plant_flower(current_tool, target, tilepos)
-				$Toolbar/ToolText.text = tool_text(current_tool)
+				toolbar.set_tool_text(tool_text(current_tool))
 				
 				# check for completion upon making any edit.
 				if did_plant:

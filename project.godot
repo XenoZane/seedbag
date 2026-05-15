@@ -13,7 +13,7 @@ config_version=5
 config/name="seedbag"
 run/main_scene="uid://ckya23tltuabk"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="uid://drcvftrie12h5"
 
 [autoload]
 
@@ -21,9 +21,10 @@ Manager="*uid://col23ahcjp3ny"
 
 [display]
 
-window/size/viewport_width=128
-window/size/viewport_height=96
+window/size/viewport_width=256
+window/size/viewport_height=192
 window/stretch/mode="viewport"
+window/icon="uid://drcvftrie12h5"
 
 [input]
 
