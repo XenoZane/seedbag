@@ -463,6 +463,9 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 			if is_flower(check_atlas): found_flower = true
 			if check_atlas == SOIL_ATLAS: found_soil = true
 		
+		if !found_soil: print("[RULE VIOLATION]: glory is not adjacent to an empty soil.")
+		if !found_flower: print("[RULE VIOLATION]: glory is not adjacent to a flower.")
+		
 		return found_soil and found_flower
 	
 	return true
