@@ -6,20 +6,25 @@ enum HintzoneBehavior {NONE, CHECK_CHAPTER, SHOW_HINT, IS_HINT, ALL_CORRECT}
 
 @onready var level_text: RichTextLabel = $Infobar/LevelText
 
+var first_incomplete_level_idx: int = 99999
+
 
 func _ready() -> void:
 	if my_behavior == HintzoneBehavior.IS_HINT:
 		var first_incomplete_level_in_chapter: String = "???"
-		for path in Manager.chapters[Manager.current_chapter]:
+		for idx in Manager.chapters[Manager.current_chapter].size():
+			var path: String = Manager.chapters[Manager.current_chapter][idx]
 			if not Manager.level_saves[path].is_solved:
 				first_incomplete_level_in_chapter = Manager.level_saves[path].level_name
+				first_incomplete_level_idx = idx
 				break
 		$Message.text = $Message.text.replace("<garden>", "[color=#ff0000]%s[/color]" % first_incomplete_level_in_chapter)
 
-
 func _on_back_button_pressed() -> void:
 	Manager.exit_hint_zone()
-
+	
+func _on_the_hint_back_button_pressed() -> void:
+	Manager.go_to_level_in_current_chapter(first_incomplete_level_idx)
 
 func _on_check_button_pressed() -> void:
 	match my_behavior:

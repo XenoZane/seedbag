@@ -89,7 +89,6 @@ func update_hover_visuals(on_entry: bool = false) -> void:
 		prev_garden_hovered_from_entrance = prev_garden_hovered
 		next_garden_hovered_from_entrance = next_garden_hovered
 		next_chapter_hovered_from_entrance = next_chapter_hovered
-		print("on entry: pc=%s, pg=%s, ng=%s, nc=%s" % [prev_chapter_hovered_from_entrance, prev_garden_hovered_from_entrance, next_garden_hovered_from_entrance, next_chapter_hovered_from_entrance])
 	else:
 		if prev_chapter_hovered_from_entrance and not prev_chapter_hovered:
 			prev_chapter_hovered_from_entrance = false

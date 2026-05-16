@@ -272,6 +272,12 @@ func go_to_hint_zone() -> void:
 	else:
 		get_tree().change_scene_to_file("res://hintzone/seed_warning_check.tscn")
 
+func go_to_level_in_current_chapter(level: int) -> void:
+	assert(level < chapters[current_chapter].size(), "target level out of bounds for chapter %d" % current_chapter)
+	currently_loading_chapter = current_chapter
+	currently_loading_level = level
+	load_level_in_background(currently_loading_chapter, currently_loading_level)
+
 func exit_hint_zone() -> void:
 	load_level_in_background(current_chapter, current_level_in_chapter)
 
