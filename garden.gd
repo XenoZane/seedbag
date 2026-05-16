@@ -203,6 +203,13 @@ func _ready() -> void:
 			available_tools.append(tool)
 		planted_amounts[tool] = 0
 	
+	# load level data
+	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
+	if level_data != null:
+		world_tiles.tile_map_data = level_data.tiles
+		current_tool = level_data.current_tool
+		planted_amounts = level_data.current_inventory.duplicate()
+	
 	for idx in available_tools.size():
 		var tool := available_tools[idx]
 		var spr := Sprite2D.new()
@@ -212,23 +219,16 @@ func _ready() -> void:
 		toolbar.add_child(spr)
 		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 40 * idx)
 		
-		
 		var label_global_pos: Vector2 = FIRST_TOOL_POSITION + (Vector2.RIGHT * (40 * idx + 10)) + (Vector2.UP * 14)
-		var amount: int = starting_amounts[tool]
+		var amount: int = starting_amounts[tool] - planted_amounts[tool]
 		toolbar.add_amount_label(label_global_pos, amount, tool)
 		
-		
 		available_tool_sprites[tool] = spr
-
-	# load level data
-	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
-	if level_data != null:
-		world_tiles.tile_map_data = level_data.tiles
-		current_tool = level_data.current_tool
-		planted_amounts = level_data.current_inventory.duplicate()
 	
 	grid_indicator_sprite.hide()
 	tool_indicator_sprite.hide()
+	
+	toolbar.set_tool_text(tool_text(current_tool))
 
 #region undo + reset
 # FIXME (sam): need to record players properly!!
