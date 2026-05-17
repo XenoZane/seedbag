@@ -1,7 +1,9 @@
-needs rust (cargo).
+needs python.
 
-a bit vibecoded and also brute-force by design. needs SMT solver for complex puzzles.
-
-build: `cargo build`
-run: `cargo r puzzles.txt`
-or, select a different puzzles file.
+run:
+```
+python3 -m venv .venv
+source ./.venv/bin/activate
+pip install -r requirements.txt
+python3 seedgrind <puzzle_file>
+```
