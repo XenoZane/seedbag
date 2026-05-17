@@ -205,6 +205,7 @@ func all_seeds_placed(chapter: int) -> bool:
 	return true
 
 func prev_chapter() -> void:
+	MusicManager.sfx_click_button_negative()
 	if current_level_in_chapter > 0:
 		currently_loading_chapter = current_chapter
 		currently_loading_level = 0
@@ -220,6 +221,7 @@ func prev_chapter() -> void:
 
 func next_chapter() -> void:
 	if current_chapter < chapters.size():
+		MusicManager.sfx_click_button_positive()
 		if (
 			current_chapter == furthest_chapter 
 			and current_chapter in chapters_which_need_levels_saved
@@ -235,6 +237,7 @@ func next_chapter() -> void:
 		return
 
 func prev_level() -> void:
+	MusicManager.sfx_click_button_negative()
 	if current_level_in_chapter > 0:
 		currently_loading_level = current_level_in_chapter - 1
 		load_level_in_background(current_chapter, currently_loading_level)
@@ -248,6 +251,7 @@ func prev_level() -> void:
 		
 
 func next_level(bypass_hintzone: bool = false) -> void:
+	MusicManager.sfx_click_button_positive()
 	if current_level_in_chapter < chapters[current_chapter].size() - 1:
 		currently_loading_level = current_level_in_chapter + 1
 		load_level_in_background(current_chapter, currently_loading_level)

@@ -6,6 +6,7 @@
 
 [node name="MessageScene" type="Node2D" unique_id=881326934]
 script = ExtResource("1_gnrk5")
+play_sound = false
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
 offset_top = 20.0

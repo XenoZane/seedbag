@@ -10,6 +10,7 @@ var first_incomplete_level_idx: int = 99999
 
 
 func _ready() -> void:
+	MusicManager.sfx_dialog_advance()
 	if my_behavior == HintzoneBehavior.IS_HINT:
 		var first_incomplete_level_in_chapter: String = "???"
 		for idx in Manager.chapters[Manager.current_chapter].size():
@@ -25,9 +26,11 @@ func _process(_delta: float) -> void:
 		Manager.exit_hint_zone()
 
 func _on_back_button_pressed() -> void:
+	MusicManager.sfx_click_button_negative()
 	Manager.exit_hint_zone()
 	
 func _on_the_hint_back_button_pressed() -> void:
+	MusicManager.sfx_click_button_negative()
 	Manager.go_to_level_in_current_chapter(first_incomplete_level_idx)
 
 func _on_check_button_pressed() -> void:
@@ -39,16 +42,21 @@ func _on_check_button_pressed() -> void:
 		HintzoneBehavior.CHECK_CHAPTER:
 			if Manager.current_chapter_cleared():
 				get_tree().change_scene_to_file("res://hintzone/all_correct.tscn")
+				MusicManager.sfx_check_puzzle_correct()
 			else:
 				get_tree().change_scene_to_file("res://hintzone/want_a_hint.tscn")
+				MusicManager.sfx_check_puzzle_wrong()
 		HintzoneBehavior.SHOW_HINT:
+			MusicManager.sfx_click_button_neutral()
 			get_tree().change_scene_to_file("res://hintzone/the_hint.tscn")
 		HintzoneBehavior.ALL_CORRECT:
+			MusicManager.sfx_click_button_positive()
 			Manager.next_level(true)
 
 
 func _on_back_button_mouse_entered() -> void:
 	level_text.text = "return to gardens"
+	MusicManager.sfx_hover_button()
 
 func _on_back_button_mouse_exited() -> void:
 	level_text.text = ""
@@ -65,6 +73,7 @@ func _on_check_button_mouse_entered() -> void:
 			level_text.text = "gimme a hint"
 		HintzoneBehavior.ALL_CORRECT:
 			level_text.text = "bingo!"
+	MusicManager.sfx_hover_button()
 
 func _on_check_button_mouse_exited() -> void:
 	level_text.text = ""

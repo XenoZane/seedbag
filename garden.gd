@@ -78,6 +78,8 @@ const TOOL_MOUSE_SCREEN_REGIONS := [
 ]
 var used_tool_mouse_screen_regions: Dictionary[Tool, Rect2] = {}
 
+var last_mousepos: Vector2
+
 const NONE_TOOL_SPRITE_REGION := Rect2(64, 56, 8, 8)
 const ROSE_TOOL_SPRITE_REGION := Rect2(32, 56, 8, 8)
 const SUNFLOWER_TOOL_SPRITE_REGION := Rect2(40, 56, 8, 8)
@@ -241,7 +243,7 @@ func _ready() -> void:
 	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
 	if level_data != null:
 		world_tiles.tile_map_data = level_data.tiles
-		set_current_tool(level_data.current_tool)
+		set_current_tool(level_data.current_tool, true)
 		planted_amounts = level_data.current_inventory.duplicate()
 	
 	
@@ -271,6 +273,12 @@ func undo() -> void:
 # basically similar to the init.
 func reset() -> void:
 	world_tiles.tile_map_data = initial_world_state
+	
+	var play_sound: bool = false
+	for flower in planted_amounts.keys():
+		if planted_amounts[flower] > 0: play_sound = true
+		break
+	if play_sound: MusicManager.sfx_reset()
 	
 	for flower in planted_amounts.keys():
 		planted_amounts[flower] = 0
@@ -318,6 +326,7 @@ func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i, respect
 			if target in FLOWER_ATLAS_TO_TOOL:
 				planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
 			world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
+			MusicManager.sfx_remove_flower()
 			return FlowerPlantOutcome.REMOVED
 		else:
 			return FlowerPlantOutcome.NONE
@@ -328,6 +337,15 @@ func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i, respect
 	(!respect_latest or latest_plant_outcome == FlowerPlantOutcome.REPLACED or (latest_plant_outcome == FlowerPlantOutcome.PLANTED and target == SOIL_ATLAS)):
 		world_tiles.set_cell(tilepos, 0, atlas)
 		planted_amounts[flower] += 1
+		match flower:
+			Tool.ROSE:
+				MusicManager.sfx_plant_rose()
+			Tool.SUNFLOWER:
+				MusicManager.sfx_plant_sunny()
+			Tool.LAVENDER:
+				MusicManager.sfx_plant_lavender()
+			Tool.GLORY:
+				MusicManager.sfx_plant_glory()
 		if target in FLOWER_ATLAS_TO_TOOL:
 			planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
 			return FlowerPlantOutcome.REPLACED
@@ -336,15 +354,21 @@ func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i, respect
 	elif is_planted(target) and same_flower(atlas, target) and !respect_latest:
 		world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
 		planted_amounts[flower] -= 1
+		MusicManager.sfx_remove_flower()
 		return FlowerPlantOutcome.REMOVED
 	elif is_planted(target) and planted_amounts[flower] == starting_amounts[flower] and !respect_latest:
 		world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
 		planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
+		MusicManager.sfx_remove_flower()
 		return FlowerPlantOutcome.REMOVED
 	else:
+		# play failplant sound
+		if planted_amounts[flower] == starting_amounts[flower] and target == SOIL_ATLAS and !respect_latest:
+			MusicManager.sfx_try_plant_fail()
 		return FlowerPlantOutcome.NONE
 
 func _input(event: InputEvent) -> void:
+	var mousepos: Vector2 = get_global_mouse_position() # lol
 	# things to "reset" in the UI, will update if the state calls for it.
 	if event is InputEventMouseMotion:
 		grid_indicator_sprite.hide()
@@ -352,8 +376,6 @@ func _input(event: InputEvent) -> void:
 			tool_indicator_sprite.hide()
 		else:
 			tool_indicator_sprite.global_position = available_tool_sprites[current_tool].global_position
-		
-		var mousepos: Vector2 = get_global_mouse_position() # lol
 		
 		nextbar.update_hover_visuals()
 		nextbar.set_level_name(level_name)
@@ -363,16 +385,19 @@ func _input(event: InputEvent) -> void:
 				nextbar.set_level_name("reset")
 				grid_indicator_sprite.show()
 				grid_indicator_sprite.global_position = RESET_TOOL_INDICATOR_POSITION
+				if !RESET_TOOL_MOUSE_SCREEN_REGION.has_point(last_mousepos): MusicManager.sfx_hover_button()
 			elif TROWEL_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
 				nextbar.set_level_name("trowel")
 				tool_indicator_sprite.show()
 				tool_indicator_sprite.global_position = TROWEL_TOOL_INDICATOR_POSITION
+				if !TROWEL_TOOL_MOUSE_SCREEN_REGION.has_point(last_mousepos): MusicManager.sfx_hover_button()
 			else:
 				for tool in available_tools:
 					if used_tool_mouse_screen_regions[tool].has_point(mousepos):
 						nextbar.set_level_name(tool_text(tool))
 						tool_indicator_sprite.show()
 						tool_indicator_sprite.global_position = available_tool_sprites[tool].global_position
+						if !used_tool_mouse_screen_regions[tool].has_point(last_mousepos): MusicManager.sfx_hover_button()
 						break
 		elif nextbar.global_point_should_hide_indicator(mousepos):
 			grid_indicator_sprite.hide()
@@ -389,7 +414,6 @@ func _input(event: InputEvent) -> void:
 				grid_indicator_sprite.show()
 	
 	if event is InputEventMouseButton:
-		var mousepos: Vector2 = get_global_mouse_position()
 		if !event.pressed: latest_plant_outcome = FlowerPlantOutcome.NONE
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			# clicked in toolbar: try select new tool
@@ -423,6 +447,8 @@ func _input(event: InputEvent) -> void:
 					
 					update_toolbar_amounts()
 					save_level_data()
+	
+	last_mousepos = mousepos
 
 func _process(delta: float) -> void:
 	echo_pressed_delay -= delta
@@ -462,12 +488,14 @@ func _process(delta: float) -> void:
 				update_toolbar_amounts()
 				save_level_data()
 
-func set_current_tool(new_tool: Tool) -> void:
-	current_tool = new_tool
-	if new_tool != Tool.NONE:
-		tool_indicator_sprite.show()
-		tool_indicator_sprite.position = available_tool_sprites[new_tool].global_position
-		Manager.has_clicked_tool = true
+func set_current_tool(new_tool: Tool, muted: bool = false) -> void:
+	if current_tool != new_tool:
+		current_tool = new_tool
+		if !muted: MusicManager.sfx_switch_tool()
+		if new_tool != Tool.NONE:
+			tool_indicator_sprite.show()
+			tool_indicator_sprite.position = available_tool_sprites[new_tool].global_position
+			Manager.has_clicked_tool = true
 
 #region rules
 func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:

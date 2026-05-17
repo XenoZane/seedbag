@@ -1,5 +1,7 @@
 class_name MessageScene extends Node2D
 
+@export var play_sound: bool = true
+
 var nextbar: Nextbar
 const NEXTBAR_POSITION: Vector2 = Vector2(0, 0)
 
@@ -10,6 +12,9 @@ func _ready() -> void:
 	nextbar.global_position = NEXTBAR_POSITION
 	
 	nextbar.update_hover_visuals(true)
+	
+	if play_sound:
+		MusicManager.sfx_dialog_advance()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
