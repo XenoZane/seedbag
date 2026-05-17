@@ -1,0 +1,26 @@
+: glory final 2
+:: rose 0
+:: sunflower 0
+:: lavender 0
+:: glory 0
+rg ss.gr
+l.rssrl
+lllllllr
+lg.   g.
+r      r
+
+: glory final 33
+:: lavender 9
+:: rose 5
+:: sunflower 3
+:: glory 3
+r. . ...
+..r.s.l 
+........
+.g.   ..
+.      .
+
+: test
+:: lavender 0
+rllls..r
+	s

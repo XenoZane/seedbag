@@ -565,7 +565,8 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		if check_lavender_line(coords, vert_line):
 			return true
 		
-		print("[RULE VIOLATION]: lavender is not an interior point in a valid line.")
+		print("[RULE VIOLATION]: lavender at %s is not an interior point in a valid line." % coords)
+		#world_tiles.set_cell(coords, 0, WALL_ATLAS)
 		return false
 	
 	elif is_glory(atlas):
@@ -618,18 +619,36 @@ func find_lavender_line(start: Vector2i, direction: Vector2i) -> Array[Vector2i]
 	return line
 
 func check_lavender_line(coords: Vector2i, line: Array[Vector2i]) -> bool:
-	return (
-		line.size() >= 3
-		and coords != line[0]
-		and coords != line[-1]
-		and same_flower(
-			world_tiles.get_cell_atlas_coords(line[0]), 
-			world_tiles.get_cell_atlas_coords(line[-1])
-		) 
-		and line.slice(1, -1).all(
-			func (p: Vector2i): return is_lavender(world_tiles.get_cell_atlas_coords(p))
-		)
-	)
+	var idx := line.find(coords)
+	for i in range(idx):
+		for j in range(idx + 1, line.size()):
+			if j - i < 2:
+				continue
+			var exterior_a := world_tiles.get_cell_atlas_coords(line[i])
+			var exterior_b := world_tiles.get_cell_atlas_coords(line[j])
+			if not same_flower(exterior_a, exterior_b):
+				continue
+			var interior_okay := true
+			for interior_idx in range(i + 1, j):
+				if not is_lavender(world_tiles.get_cell_atlas_coords(line[interior_idx])):
+					interior_okay = false
+					break
+			if interior_okay:
+				return true
+	return false
+			
+	#return (
+		#line.size() >= 3
+		#and coords != line[0]
+		#and coords != line[-1]
+		#and same_flower(
+			#world_tiles.get_cell_atlas_coords(line[0]), 
+			#world_tiles.get_cell_atlas_coords(line[-1])
+		#) 
+		#and line.slice(1, -1).all(
+			#func (p: Vector2i): return is_lavender(world_tiles.get_cell_atlas_coords(p))
+		#)
+	#)	
 
 func all_flowers_planted() -> bool:
 	for flower in starting_amounts:

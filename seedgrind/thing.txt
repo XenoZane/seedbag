@@ -1,0 +1,9 @@
+: glory final
+:: rose 0
+ rllllllr
+.gr .g rg.
+ l rssr l
+ l  ss  l
+ l r  r l
+.gr .g rg.
+ rg.g.g.r

@@ -1,0 +1,11 @@
+: glory N
+:: lavender 9
+:: rose 5
+:: sunflower 3
+:: glory 3
+        
+r. . ...
+..r.s.l 
+........
+.g.   ..
+.      .

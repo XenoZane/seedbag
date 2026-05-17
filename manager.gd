@@ -123,7 +123,8 @@ var chapters := [
 		"res://gardens/ch6/garden_glory10.tscn",
 		"res://gardens/ch6/garden_synthesis1.tscn",
 		"res://gardens/ch6/garden_synthesis2.tscn",
-		"res://gardens/ch6/garden_synthesis3.tscn",
+		"res://gardens/ch6/garden_glory11.tscn",
+		"res://gardens/ch6/garden_final.tscn",
 	],
 	
 	# transition....
