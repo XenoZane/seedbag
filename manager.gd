@@ -220,7 +220,7 @@ func prev_chapter() -> void:
 			currently_loading_level = 0
 			load_level_in_background(currently_loading_chapter, currently_loading_level)
 		else:
-			print("hit first chapter!")
+			get_tree().change_scene_to_file("res://title.tscn")
 			return
 
 func next_chapter() -> void:
@@ -250,7 +250,7 @@ func prev_level() -> void:
 		currently_loading_level = chapters[currently_loading_chapter].size() - 1
 		load_level_in_background(currently_loading_chapter, currently_loading_level)
 	else:
-		print("hit beginning of levels!")
+		get_tree().change_scene_to_file("res://title.tscn")
 		return
 		
 

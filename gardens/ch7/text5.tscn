@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://cr71i2c1tgmq6"]
+
+[ext_resource type="Script" uid="uid://bl5kosfjrwlb0" path="res://message.gd" id="1_gqedg"]
+[ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="2_w1mr7"]
+
+[node name="MessageScene" type="Node2D" unique_id=881326934]
+script = ExtResource("1_gqedg")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
+offset_top = 20.0
+offset_right = 256.0
+offset_bottom = 192.0
+color = Color(0, 0, 0, 1)
+
+[node name="Message" type="RichTextLabel" parent="." unique_id=1829885548]
+offset_top = 20.0
+offset_right = 256.0
+offset_bottom = 192.0
+theme_override_fonts/normal_font = ExtResource("2_w1mr7")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "THE END!"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1

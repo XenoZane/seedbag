@@ -3,6 +3,7 @@
 [ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="1_0byv1"]
 [ext_resource type="Script" uid="uid://c64fo3n2brc83" path="res://title.gd" id="1_k86xs"]
 [ext_resource type="Texture2D" uid="uid://3cr1mawgvctn" path="res://icon_music.png" id="3_3xoar"]
+[ext_resource type="Texture2D" uid="uid://blq6fm87qo0o2" path="res://clicktoplay.png" id="3_7lgly"]
 [ext_resource type="Script" uid="uid://smcf6bcfwhh5" path="res://music_slider.gd" id="3_mom7w"]
 [ext_resource type="Texture2D" uid="uid://cmtscqj0hgqyn" path="res://icon_sfx.png" id="4_mom7w"]
 
@@ -52,9 +53,9 @@ offset_bottom = 192.0
 color = Color(0, 0, 0, 1)
 
 [node name="Title" type="RichTextLabel" parent="." unique_id=1829885548]
-offset_top = 40.0
+offset_top = 28.0
 offset_right = 256.0
-offset_bottom = 59.0
+offset_bottom = 47.0
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
 text = "puzzlin' gardens!"
@@ -69,23 +70,29 @@ offset_right = 256.0
 offset_bottom = 73.0
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
-text = "by zane and sam"
+text = "by zane and sam
+music by splitsuns"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="NewGame" type="RichTextLabel" parent="." unique_id=1209290940]
-offset_top = 78.0
+offset_top = 82.0
 offset_right = 256.0
-offset_bottom = 110.0
+offset_bottom = 114.0
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
-text = "click here to start a new game."
+text = "click here to play."
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Clicktoplay" type="Sprite2D" parent="." unique_id=1180454250]
+position = Vector2(71, 92)
+texture = ExtResource("3_7lgly")
+centered = false
 
 [node name="Instructions" type="RichTextLabel" parent="." unique_id=1139385926]
 offset_top = 111.0

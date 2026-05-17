@@ -40,9 +40,6 @@ var next_chapter_hovered_from_entrance: bool = false
 func _ready() -> void:
 	big_arrow_sprite.hide()
 	
-	if Manager.on_first_level():
-		prev_garden_sprite.hide()
-		prev_chapter_sprite.hide()
 	if Manager.on_last_chapter():
 		next_chapter_sprite.hide()
 	if Manager.on_last_level():
