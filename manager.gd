@@ -120,7 +120,6 @@ var chapters := [
 		"res://gardens/ch6/garden_glory8.tscn",
 		"res://gardens/ch6/garden_glory8a.tscn",
 		"res://gardens/ch6/garden_glory9.tscn",
-		"res://gardens/ch6/garden_glory10.tscn",
 		"res://gardens/ch6/garden_synthesis1.tscn",
 		"res://gardens/ch6/garden_synthesis2.tscn",
 		"res://gardens/ch6/garden_glory11.tscn",

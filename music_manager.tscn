@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://t6gmopqo1w4v"]
 
 [ext_resource type="Script" uid="uid://vkftwf7hphgu" path="res://music_manager.gd" id="1_rjr7q"]
-[ext_resource type="AudioStream" uid="uid://udupk88nec1j" path="res://wip1_looped.ogg" id="1_tylfe"]
+[ext_resource type="AudioStream" uid="uid://b6pbnnhygiaar" path="res://wild jam v3.ogg" id="2_kyyes"]
 [ext_resource type="AudioStream" uid="uid://d1p6du2pnfcmd" path="res://sfx/sfx_plant1.wav" id="3_6bu3j"]
 [ext_resource type="AudioStream" uid="uid://bwhca7f72alm5" path="res://sfx/sfx_plant2.wav" id="4_wdhd3"]
 [ext_resource type="AudioStream" uid="uid://vt6ga7y5bler" path="res://sfx/sfx_plant3.wav" id="5_kyyes"]
@@ -32,8 +32,7 @@ stream_1/stream = ExtResource("4_wdhd3")
 script = ExtResource("1_rjr7q")
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=2031083191]
-stream = ExtResource("1_tylfe")
-volume_db = -10.0
+stream = ExtResource("2_kyyes")
 autoplay = true
 bus = &"Music"
 
@@ -49,7 +48,6 @@ bus = &"SFX"
 
 [node name="SFX_PlantLavender" type="AudioStreamPlayer" parent="." unique_id=651774392]
 stream = ExtResource("5_kyyes")
-volume_db = -1.0
 bus = &"SFX"
 
 [node name="SFX_PlantGlory" type="AudioStreamPlayer" parent="." unique_id=1242357693]
@@ -64,7 +62,7 @@ bus = &"SFX"
 
 [node name="SFX_HoverButton" type="AudioStreamPlayer" parent="." unique_id=630774461]
 stream = ExtResource("8_eyimf")
-volume_db = -15.0
+volume_db = -17.0
 bus = &"SFX"
 
 [node name="SFX_ClickButtonNeutral" type="AudioStreamPlayer" parent="." unique_id=1931223763]
@@ -95,7 +93,7 @@ bus = &"SFX"
 
 [node name="SFX_SwitchTool" type="AudioStreamPlayer" parent="." unique_id=336360205]
 stream = ExtResource("13_7i7ec")
-volume_db = -8.0
+volume_db = -6.0
 bus = &"SFX"
 
 [node name="SFX_TryPlantFail" type="AudioStreamPlayer" parent="." unique_id=844802744]
