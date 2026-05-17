@@ -4,21 +4,21 @@
 
 : garden 2
 :: rose 1
-xx.
+  .
 r..
-xx.
+  .
 
 : garden 3
 :: rose 3
-xx.
-xx.
+  .
+  .
 ...
 
 : garden 4
 :: rose 4
 ....
-.xxx
-.xxx
+.  x
+.  x
 xxx.
 
 : garden 5
@@ -27,16 +27,16 @@ s..
 
 : garden 6
 :: sunflower 2
-.x
+. 
 ..
-sx
-.x
+s 
+. 
 
 : garden 7
 :: sunflower 3
 ..
 ..
-sx
+s 
 
 : garden 7A
 :: sunflower 7
@@ -48,7 +48,7 @@ sx
 : garden 7B
 :: sunflower 4
 ..
-x.
+ .
 ..
 
 : garden 8
@@ -64,19 +64,19 @@ x.
 
 : garden 10
 :: sunflower 12
-xxx..
-x....
-x...x
-....x
-..xxx
+    ..
+  ....s
+  ... 
+s.... 
+ ..   
 
 : garden 11
 :: rose 4
 :: sunflower 6
-xxx..x
-xx.s..
-x..xxx
-...xxx
+   .. 
+  .s..
+ ..   
+...   
 
 : lavender A
 :: rose 2
@@ -86,27 +86,27 @@ x..xxx
 : lavender B
 :: rose 2
 :: lavender 1
-..x
+.. 
 ...
 
 : lavender C
 :: rose 2
 :: lavender 1
-xxx.
-xxx.
+   .
+   .
 r...
 
 : lavender D
 :: rose 2
 :: lavender 2
-xxx.
-xxx.
+   .
+   .
 r...
 
 : lavender D_a
 :: lavender 3
-r.x.r
-xxxx.
+r. .r
+    .
 r...r
 
 : lavender E
@@ -114,7 +114,7 @@ r...r
 :: lavender 1
 ...
 ...
-x.x
+ . 
 
 : lavender F
 :: rose 1
@@ -127,34 +127,34 @@ r....
 :: sunflower 5
 :: lavender 2
 .....
-.sx.x
-x...x
+.s . 
+ ... 
 
 : lavender H
 :: sunflower 4
 :: lavender 1
-..xx
+..  
 r..r
-..xx
+..  
 
 : lavender I?
 :: rose 3
 :: sunflower 6
 :: lavender 1
-..xx
-..xx
+..  
+..  
 ....
-x..x
+ .. 
 
 : lavender J
 :: rose 2
 :: sunflower 5
 :: lavender 4
-x...
+ ...
 ....
-..xx
-x.xx
-x.xx
+..  
+ .  
+ .  
 
 : lavender K
 :: rose 4
@@ -167,11 +167,11 @@ ll.
 :: rose 3
 :: sunflower 2
 :: lavender 9
-.xxr..
-.....x
-.....x
-xxx..s
-xxx..s
+.  r..
+..... 
+..... 
+   ..s
+   ..s
 
 : lavender M
 :: rose 4
@@ -184,35 +184,35 @@ xxx..s
 
 : glory A
 :: glory 1
-r..xr
+r.. r
 
 : glory B
 :: glory 1
-r..x.r
+r.. .r
 
 : glory C
 :: rose 3
-xx.xx
+  .  
 .rg..
-xx.xx
+  .  
 
 : glory D
 :: sunflower 1
 :: glory 2
 ..
-x.s
-xx..
+ .s
+  ..
 
 : glory E
 :: sunflower 5
-x..
+ ..
 g..
 ...
 
 : glory G
 :: rose 1
 :: glory 2
-rx.
+r .
 ...
 
 : glory H
@@ -226,7 +226,7 @@ rx.
 
 : glory I
 :: glory 5
-.x.
+. .
 ...
 ...
 
@@ -237,31 +237,31 @@ rx.
 ....
 ....
 
-: synthesis 1
+: glory K
 :: rose 1
 :: lavender 4
 :: glory 2
 r...
-x...
-x...
+ ...
+ ...
 
-: synthesis 2
+: glory L
 :: lavender 8
-:: glory 6
-..x..
+:: glory 4
+.. ..
 ..l..
+g.l.g
 ..l..
-..l..
-..x..
+.. ..
 
-: synthesis 3
+: glory M
 :: rose 1
 :: sunflower 7
 :: lavender 11
 :: glory 3
 ..rg...
-x......
-x......
+ .sl...
+ ......
 ...
 ...
 ...
