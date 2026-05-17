@@ -1,0 +1,238 @@
+: garden 1
+:: rose 2
+...
+
+: garden 2
+:: rose 1
+xx.
+r..
+xx.
+
+: garden 3
+:: rose 3
+xx.
+xx.
+...
+
+: garden 4
+:: rose 4
+....
+.xxx
+.xxx
+xxx.
+
+: garden 5
+:: sunflower 1
+s..
+
+: garden 6
+:: sunflower 2
+.x
+..
+sx
+.x
+
+: garden 7
+:: sunflower 3
+..
+..
+sx
+
+: garden 7A
+:: sunflower 7
+....
+...
+..
+.
+
+: garden 7B
+:: sunflower 4
+..
+x.
+..
+
+: garden 8
+:: rose 2
+:: sunflower 2
+....
+
+: garden 9
+:: rose 9
+.....
+......
+......
+
+: garden 10
+:: sunflower 12
+xxx..
+x....
+x...x
+....x
+..xxx
+
+: garden 11
+:: rose 4
+:: sunflower 6
+xxx..x
+xx.s..
+x..xxx
+...xxx
+
+: lavender A
+:: rose 2
+:: lavender 1
+...
+
+: lavender B
+:: rose 2
+:: lavender 1
+..x
+...
+
+: lavender C
+:: rose 2
+:: lavender 1
+xxx.
+xxx.
+r...
+
+: lavender D
+:: rose 2
+:: lavender 2
+xxx.
+xxx.
+r...
+
+: lavender D_a
+:: lavender 3
+r.x.r
+xxxx.
+r...r
+
+: lavender E
+:: rose 4
+:: lavender 1
+...
+...
+x.x
+
+: lavender F
+:: rose 1
+:: sunflower 2
+:: lavender 1
+r....
+
+: lavender G?
+:: rose 3
+:: sunflower 5
+:: lavender 2
+.....
+.sx.x
+x...x
+
+: lavender H
+:: sunflower 4
+:: lavender 1
+..xx
+r..r
+..xx
+
+: lavender I?
+:: rose 3
+:: sunflower 6
+:: lavender 1
+..xx
+..xx
+....
+x..x
+
+: lavender J
+:: rose 2
+:: sunflower 5
+:: lavender 4
+x...
+....
+..xx
+x.xx
+x.xx
+
+: lavender K
+:: rose 4
+:: lavender 1
+...
+ll.
+...
+
+: lavender L?
+:: rose 3
+:: sunflower 2
+:: lavender 9
+.xxr..
+.....x
+.....x
+xxx..s
+xxx..s
+
+: lavender M
+:: rose 4
+:: lavender 21
+.....
+.....
+.....
+.....
+.....
+
+: glory A
+:: glory 1
+r..xr
+
+: glory B
+:: glory 1
+r..x.r
+
+: glory C
+:: rose 3
+xx.xx
+.rg..
+xx.xx
+
+: glory D
+:: sunflower 1
+:: glory 2
+..
+x.s
+xx..
+
+: glory E
+:: sunflower 5
+x..
+g..
+...
+
+: glory G
+:: rose 1
+:: glory 2
+rx.
+...
+
+: glory H
+:: glory 2
+....
+
+: glory H_a
+:: lavender 2
+:: glory 2
+......
+
+: glory I
+:: glory 5
+.x.
+...
+...
+
+: glory J
+:: glory 11
+.g..
+....
+....
+....
