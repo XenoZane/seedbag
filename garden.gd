@@ -66,13 +66,26 @@ enum Tool {
 }
 const FLOWER_TOOLS = [Tool.ROSE, Tool.SUNFLOWER, Tool.LAVENDER, Tool.GLORY]
 
+const RESET_TOOL_MOUSE_SCREEN_REGION := Rect2(-128, 76, 24, 20)
+const TROWEL_TOOL_MOUSE_SCREEN_REGION := Rect2(-104, 76, 24, 20)
+const RESET_TOOL_INDICATOR_POSITION := Vector2(-116, 86)
+const TROWEL_TOOL_INDICATOR_POSITION := Vector2(-92, 86)
+const TOOL_MOUSE_SCREEN_REGIONS := [
+	Rect2(-54, 76, 44, 20),
+	Rect2(-10, 76, 44, 20),
+	Rect2(34, 76, 44, 20),
+	Rect2(78, 76, 44, 20),
+]
+var used_tool_mouse_screen_regions: Dictionary[Tool, Rect2] = {}
+
+const NONE_TOOL_SPRITE_REGION := Rect2(64, 56, 8, 8)
 const ROSE_TOOL_SPRITE_REGION := Rect2(32, 56, 8, 8)
-const SUNFLOWER_TOOL_SPRITE_REGION := Rect2(24, 56, 8, 8)
-const LAVENDER_TOOL_SPRITE_REGION := Rect2(40, 56, 8, 8)
+const SUNFLOWER_TOOL_SPRITE_REGION := Rect2(40, 56, 8, 8)
+const LAVENDER_TOOL_SPRITE_REGION := Rect2(24, 56, 8, 8)
 const GLORY_TOOL_SPRITE_REGION := Rect2(48, 56, 8, 8)
 # WARNING: order MUST be the same as Tool enum: None, Rose, Sunflower, Lavender, ...
 const TOOL_SPRITE_REGIONS: Array[Rect2] = [
-	Rect2(32, 0, 8, 8),  # invalid tool (None)
+	NONE_TOOL_SPRITE_REGION,
 	ROSE_TOOL_SPRITE_REGION, 
 	SUNFLOWER_TOOL_SPRITE_REGION, 
 	LAVENDER_TOOL_SPRITE_REGION,
@@ -112,8 +125,8 @@ const FLOWER_TOOL_TEXT: Dictionary[Tool, String] = {
 
 # UI layout stuff
 const NEXTBAR_POSITION: Vector2 = Vector2(-128, -96)
-const TOOLBAR_POSITION: Vector2 = Vector2(-128, 76)
-const FIRST_TOOL_POSITION: Vector2 = Vector2(-8, 86)
+const TOOLBAR_POSITION: Vector2 = Vector2(-128, -96)
+const FIRST_TOOL_POSITION: Vector2 = Vector2(-44, 86)
 const TILEMAP_SCALE: Vector2 = Vector2(2.0, 2.0)
 
 @export var level_name: String = "change me"
@@ -133,6 +146,9 @@ var tool_indicator_sprite: Sprite2D
 var current_tool: Tool = Tool.NONE
 var plantable_tiles: Array[Vector2i]
 var planted_amounts: Dictionary[Tool, int]
+
+enum FlowerPlantOutcome {NONE, REMOVED, PLANTED, REPLACED}
+var latest_plant_outcome: FlowerPlantOutcome = FlowerPlantOutcome.NONE
 
 # TODO: completion state from seedbag, but probably needs an update..
 var completed: bool = false
@@ -171,18 +187,20 @@ func _ready() -> void:
 	initial_world_state = world_tiles.tile_map_data
 	world_tiles.scale = TILEMAP_SCALE
 	
-	# add grid indicator
-	grid_indicator_sprite = preload("res://indicator.tscn").instantiate()
-	add_child(grid_indicator_sprite)
-	
 	# add toolbar
 	toolbar = preload("res://toolbar.tscn").instantiate()
 	add_child(toolbar)
 	toolbar.global_position = TOOLBAR_POSITION
 	
+	# add grid indicator
+	grid_indicator_sprite = preload("res://indicator.tscn").instantiate()
+	add_child(grid_indicator_sprite)
+	grid_indicator_sprite.hide()
+	
 	# add tool indicator
 	tool_indicator_sprite = preload("res://indicator.tscn").instantiate()
 	add_child(tool_indicator_sprite)
+	tool_indicator_sprite.hide()
 	
 	# add nextbar
 	nextbar = preload("res://nextbar.tscn").instantiate()
@@ -203,13 +221,6 @@ func _ready() -> void:
 			available_tools.append(tool)
 		planted_amounts[tool] = 0
 	
-	# load level data
-	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
-	if level_data != null:
-		world_tiles.tile_map_data = level_data.tiles
-		current_tool = level_data.current_tool
-		planted_amounts = level_data.current_inventory.duplicate()
-	
 	for idx in available_tools.size():
 		var tool := available_tools[idx]
 		var spr := Sprite2D.new()
@@ -217,18 +228,26 @@ func _ready() -> void:
 		spr.region_enabled = true
 		spr.region_rect = TOOL_SPRITE_REGIONS[tool]
 		toolbar.add_child(spr)
-		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 40 * idx)
+		spr.global_position = FIRST_TOOL_POSITION + (Vector2.RIGHT * 44 * idx)
 		
-		var label_global_pos: Vector2 = FIRST_TOOL_POSITION + (Vector2.RIGHT * (40 * idx + 10)) + (Vector2.UP * 14)
+		var label_global_pos: Vector2 = FIRST_TOOL_POSITION + (Vector2.RIGHT * (44 * idx + 10)) + (Vector2.UP * 14)
 		var amount: int = starting_amounts[tool] - planted_amounts[tool]
 		toolbar.add_amount_label(label_global_pos, amount, tool)
 		
 		available_tool_sprites[tool] = spr
+		used_tool_mouse_screen_regions[tool] = TOOL_MOUSE_SCREEN_REGIONS[idx]
 	
-	grid_indicator_sprite.hide()
-	tool_indicator_sprite.hide()
+	# load level data
+	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
+	if level_data != null:
+		world_tiles.tile_map_data = level_data.tiles
+		set_current_tool(level_data.current_tool)
+		planted_amounts = level_data.current_inventory.duplicate()
+	
+	
 	
 	toolbar.set_tool_text(tool_text(current_tool))
+	update_toolbar_amounts()
 
 #region undo + reset
 # FIXME (sam): need to record players properly!!
@@ -253,11 +272,10 @@ func undo() -> void:
 func reset() -> void:
 	world_tiles.tile_map_data = initial_world_state
 	
-	current_tool = Tool.NONE
-	
 	for flower in planted_amounts.keys():
 		planted_amounts[flower] = 0
 	
+	update_toolbar_amounts()
 	last_move_was_reset = true
 #endregion
 
@@ -283,25 +301,48 @@ func tool_text(tool: Tool) -> String:
 func update_toolbar_amounts() -> void:
 	for tool in available_tools:
 		toolbar.amount_labels[tool].text = str(starting_amounts[tool] - planted_amounts[tool])
+		if toolbar.amount_labels[tool].text == "0":
+			toolbar.amount_labels[tool].modulate.a = 0.5
+		else:
+			toolbar.amount_labels[tool].modulate.a = 1.0
 
 # TODO: might become "try_use_tool"...
-func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i) -> bool:
-	if flower not in FLOWER_TOOLS:
-		return false
+func try_plant_flower(flower: Tool, target: Vector2i, tilepos: Vector2i, respect_latest: bool = false) -> FlowerPlantOutcome:
+	# NOTE (zane): commented out this bit since none tool = trowel (remove flower)
+	#if flower not in FLOWER_TOOLS:
+		#return false 
 	
+	# handle trowel and removal drag case
+	if flower == Tool.NONE or (respect_latest and latest_plant_outcome == FlowerPlantOutcome.REMOVED):
+		if target in FLOWER_UNFIXED_ATLASES:
+			if target in FLOWER_ATLAS_TO_TOOL:
+				planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
+			world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
+			return FlowerPlantOutcome.REMOVED
+		else:
+			return FlowerPlantOutcome.NONE
+	
+	# handle flowers
 	var atlas := FLOWER_TOOL_TO_ATLAS[flower]
-	if can_plant_flower_on_spot(atlas, target) and planted_amounts[flower] < starting_amounts[flower]:
+	if can_plant_flower_on_spot(atlas, target) and planted_amounts[flower] < starting_amounts[flower] and \
+	(!respect_latest or latest_plant_outcome == FlowerPlantOutcome.REPLACED or (latest_plant_outcome == FlowerPlantOutcome.PLANTED and target == SOIL_ATLAS)):
 		world_tiles.set_cell(tilepos, 0, atlas)
 		planted_amounts[flower] += 1
 		if target in FLOWER_ATLAS_TO_TOOL:
 			planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
-		return true
-	elif is_planted(target) and same_flower(atlas, target):
+			return FlowerPlantOutcome.REPLACED
+		else:
+			return FlowerPlantOutcome.PLANTED
+	elif is_planted(target) and same_flower(atlas, target) and !respect_latest:
 		world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
 		planted_amounts[flower] -= 1
-		return true
+		return FlowerPlantOutcome.REMOVED
+	elif is_planted(target) and planted_amounts[flower] == starting_amounts[flower] and !respect_latest:
+		world_tiles.set_cell(tilepos, 0, SOIL_ATLAS)
+		planted_amounts[FLOWER_ATLAS_TO_TOOL[target]] -= 1
+		return FlowerPlantOutcome.REMOVED
 	else:
-		return false
+		return FlowerPlantOutcome.NONE
 
 func _input(event: InputEvent) -> void:
 	# things to "reset" in the UI, will update if the state calls for it.
@@ -309,17 +350,30 @@ func _input(event: InputEvent) -> void:
 		grid_indicator_sprite.hide()
 		if current_tool == Tool.NONE:
 			tool_indicator_sprite.hide()
+		else:
+			tool_indicator_sprite.global_position = available_tool_sprites[current_tool].global_position
 		
 		var mousepos: Vector2 = get_global_mouse_position() # lol
 		
+		nextbar.update_hover_visuals()
+		nextbar.set_level_name(level_name)
+		
 		if toolbar.contains_mouse(mousepos):
-			for tool in available_tools:
-				var spr: Sprite2D = available_tool_sprites[tool]
-				if spr.get_rect().has_point(spr.to_local(mousepos)):
-					toolbar.set_tool_text(tool_text(tool))
-					tool_indicator_sprite.show()
-					tool_indicator_sprite.global_position = spr.global_position
-					break
+			if RESET_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
+				nextbar.set_level_name("reset")
+				grid_indicator_sprite.show()
+				grid_indicator_sprite.global_position = RESET_TOOL_INDICATOR_POSITION
+			elif TROWEL_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
+				nextbar.set_level_name("trowel")
+				tool_indicator_sprite.show()
+				tool_indicator_sprite.global_position = TROWEL_TOOL_INDICATOR_POSITION
+			else:
+				for tool in available_tools:
+					if used_tool_mouse_screen_regions[tool].has_point(mousepos):
+						nextbar.set_level_name(tool_text(tool))
+						tool_indicator_sprite.show()
+						tool_indicator_sprite.global_position = available_tool_sprites[tool].global_position
+						break
 		elif nextbar.global_point_should_hide_indicator(mousepos):
 			grid_indicator_sprite.hide()
 		else:
@@ -336,27 +390,32 @@ func _input(event: InputEvent) -> void:
 	
 	if event is InputEventMouseButton:
 		var mousepos: Vector2 = get_global_mouse_position()
+		if !event.pressed: latest_plant_outcome = FlowerPlantOutcome.NONE
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			# clicked in toolbar: try select new tool
 			if toolbar.contains_mouse(mousepos):
-				for tool in available_tools:
-					var spr: Sprite2D = available_tool_sprites[tool]
-					if spr.get_rect().has_point(spr.to_local(mousepos)):
-						current_tool = tool
-						tool_indicator_sprite.show()
-						tool_indicator_sprite.position = spr.global_position
-						break
+				if RESET_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
+					reset()
+				elif TROWEL_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
+					set_current_tool(Tool.NONE)
+				else:
+					for tool in available_tools:
+						if used_tool_mouse_screen_regions[tool].has_point(mousepos):
+							set_current_tool(tool)
+							break
 				save_level_data()
 				toolbar.set_tool_text(tool_text(current_tool))
 			# clicked in tilemap: try using tools.
 			else:
 				var tilepos = world_tiles.local_to_map(world_tiles.to_local(mousepos))
 				var target = world_tiles.get_cell_atlas_coords(tilepos)
-				var did_plant := try_plant_flower(current_tool, target, tilepos)
+				var plant_outcome: FlowerPlantOutcome = try_plant_flower(current_tool, target, tilepos)
 				toolbar.set_tool_text(tool_text(current_tool))
 				
+				latest_plant_outcome = plant_outcome
+				
 				# check for completion upon making any edit.
-				if did_plant:
+				if plant_outcome != FlowerPlantOutcome.NONE:
 					if all_flowers_planted() and all_rules_followed():
 						completed = true
 					else:
@@ -365,7 +424,6 @@ func _input(event: InputEvent) -> void:
 					update_toolbar_amounts()
 					save_level_data()
 
-
 func _process(delta: float) -> void:
 	echo_pressed_delay -= delta
 	
@@ -373,7 +431,43 @@ func _process(delta: float) -> void:
 		nextbar.show_big_arrow()
 	else:
 		nextbar.hide_big_arrow()
+	
+	if Input.is_action_just_pressed("reset"):
+		reset()
+	if Input.is_action_just_pressed("1") and available_tools.size() >= 1:
+		set_current_tool(available_tools[0])
+	if Input.is_action_just_pressed("2") and available_tools.size() >= 2:
+		set_current_tool(available_tools[1])
+	if Input.is_action_just_pressed("3") and available_tools.size() >= 3:
+		set_current_tool(available_tools[2])
+	if Input.is_action_just_pressed("4") and available_tools.size() >= 4:
+		set_current_tool(available_tools[3])
+	
+	# if we're holding down LMB, continue trying to plant new plants
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var mousepos: Vector2 = get_global_mouse_position()
+		if !toolbar.contains_mouse(mousepos): # we care abt tilemap only
+			var tilepos = world_tiles.local_to_map(world_tiles.to_local(mousepos))
+			var target = world_tiles.get_cell_atlas_coords(tilepos)
+			var did_plant := try_plant_flower(current_tool, target, tilepos, true) # special case
+			toolbar.set_tool_text(tool_text(current_tool))
+			
+			# check for completion upon making any edit.
+			if did_plant:
+				if all_flowers_planted() and all_rules_followed():
+					completed = true
+				else:
+					completed = false
+				
+				update_toolbar_amounts()
+				save_level_data()
 
+func set_current_tool(new_tool: Tool) -> void:
+	current_tool = new_tool
+	if new_tool != Tool.NONE:
+		tool_indicator_sprite.show()
+		tool_indicator_sprite.position = available_tool_sprites[new_tool].global_position
+		Manager.has_clicked_tool = true
 
 #region rules
 func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:

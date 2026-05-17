@@ -17,3 +17,6 @@ func _input(event: InputEvent) -> void:
 		if !nextbar.bg_rect.get_rect().has_point(nextbar.to_local(mousepos)):
 			if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 				Manager.next_level()
+
+func _process(delta: float) -> void:
+	nextbar.update_hover_visuals()

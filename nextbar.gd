@@ -69,7 +69,10 @@ func _input(event: InputEvent) -> void:
 				Manager.next_level()
 
 func _process(_delta: float) -> void:
-	update_hover_visuals()
+	if Input.is_action_just_pressed("left"):
+		Manager.prev_level()
+	if Input.is_action_just_pressed("right"):
+		Manager.next_level()
 
 func update_hover_visuals(on_entry: bool = false) -> void:
 	prev_chapter_sprite.region_rect = PREV_CHAPTER_RECT

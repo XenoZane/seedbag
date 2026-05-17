@@ -9,7 +9,7 @@ func set_tool_text(text: String):
 	$ToolText.text  = text
 
 func add_amount_label(global_pos: Vector2, amount: int, tool: Garden.Tool) -> void:
-	var new_label: RichTextLabel = $ToolText.duplicate()
+	var new_label: RichTextLabel = $TextTemplate.duplicate()
 	add_child(new_label)
 	new_label.text = str(amount)
 	new_label.global_position = global_pos

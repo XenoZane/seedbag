@@ -120,6 +120,9 @@ var chapters := [
 		"res://gardens/ch6/garden_glory8a.tscn",
 		"res://gardens/ch6/garden_glory9.tscn",
 		"res://gardens/ch6/garden_glory10.tscn",
+		"res://gardens/ch6/garden_synthesis1.tscn",
+		"res://gardens/ch6/garden_synthesis2.tscn",
+		"res://gardens/ch6/garden_synthesis3.tscn",
 	],
 	
 	# transition....
@@ -322,3 +325,10 @@ func new_game() -> void:
 
 func continue_game() -> void:
 	return
+
+
+#region click here indicator
+
+var has_clicked_tool: bool = false
+
+#endregion

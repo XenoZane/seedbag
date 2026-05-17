@@ -2,22 +2,167 @@
 
 [ext_resource type="Script" uid="uid://46gf61lcyjdi" path="res://toolbar.gd" id="1_mkecw"]
 [ext_resource type="FontFile" uid="uid://coxwuqgjg0ljy" path="res://font/font.fnt" id="1_n24sb"]
+[ext_resource type="Texture2D" uid="uid://bq5qch2tnawj8" path="res://tiles.png" id="3_d3mk0"]
+[ext_resource type="Script" uid="uid://cd4ojvjo3llr1" path="res://click_here_indicator.gd" id="4_ephr2"]
 
 [node name="Toolbar" type="Node2D" unique_id=797597868]
 scale = Vector2(2, 2)
 script = ExtResource("1_mkecw")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1103617173]
+offset_top = 86.0
 offset_right = 128.0
-offset_bottom = 10.0
+offset_bottom = 96.0
 color = Color(0.23921569, 0.21568628, 0.11372549, 1)
 
 [node name="ToolText" type="RichTextLabel" parent="." unique_id=658625800]
+visible = false
 offset_left = 1.0
-offset_top = -2.0
+offset_top = 84.0
 offset_right = 53.0
-offset_bottom = 10.0
+offset_bottom = 96.0
 theme_override_fonts/normal_font = ExtResource("1_n24sb")
 theme_override_font_sizes/normal_font_size = 12
 text = "seeds"
 scroll_active = false
+
+[node name="TextTemplate" type="RichTextLabel" parent="." unique_id=1327598784]
+offset_right = 52.0
+offset_bottom = 12.0
+theme_override_fonts/normal_font = ExtResource("1_n24sb")
+theme_override_font_sizes/normal_font_size = 12
+scroll_active = false
+
+[node name="ResetButton" type="Sprite2D" parent="." unique_id=548897034]
+position = Vector2(6, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(56, 56, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="ResetButton" unique_id=1878164479]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(1, 0, 13, 0, 13, 10, 1, 10)
+
+[node name="TrowelButton" type="Sprite2D" parent="." unique_id=41878085]
+position = Vector2(18, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(64, 56, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="TrowelButton" unique_id=1520061059]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(1, 0, 13, 0, 13, 10, 1, 10)
+
+[node name="Divider" type="Sprite2D" parent="." unique_id=123733949]
+position = Vector2(30, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(72, 56, 8, 8)
+
+[node name="Seed1" type="Sprite2D" parent="." unique_id=259389557]
+visible = false
+position = Vector2(42, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(32, 56, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="Seed1" unique_id=1044316506]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(2, 0, 24, 0, 24, 10, 2, 10, 2, 5)
+
+[node name="SeedAmount1" type="RichTextLabel" parent="." unique_id=711466136]
+visible = false
+offset_left = 47.0
+offset_top = 84.0
+offset_right = 99.0
+offset_bottom = 96.0
+theme_override_fonts/normal_font = ExtResource("1_n24sb")
+theme_override_font_sizes/normal_font_size = 12
+text = "00"
+scroll_active = false
+
+[node name="Seed2" type="Sprite2D" parent="." unique_id=1043037569]
+visible = false
+position = Vector2(64, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(40, 56, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="Seed2" unique_id=182524410]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(2, 0, 24, 0, 24, 10, 2, 10, 2, 5)
+
+[node name="SeedAmount2" type="RichTextLabel" parent="." unique_id=247709251]
+visible = false
+offset_left = 69.0
+offset_top = 84.0
+offset_right = 121.0
+offset_bottom = 96.0
+theme_override_fonts/normal_font = ExtResource("1_n24sb")
+theme_override_font_sizes/normal_font_size = 12
+text = "00"
+scroll_active = false
+
+[node name="Seed3" type="Sprite2D" parent="." unique_id=353413062]
+visible = false
+position = Vector2(86, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(24, 56, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="Seed3" unique_id=452428292]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(2, 0, 24, 0, 24, 10, 2, 10, 2, 5)
+
+[node name="SeedAmount3" type="RichTextLabel" parent="." unique_id=1110323446]
+visible = false
+offset_left = 91.0
+offset_top = 84.0
+offset_right = 143.0
+offset_bottom = 96.0
+theme_override_fonts/normal_font = ExtResource("1_n24sb")
+theme_override_font_sizes/normal_font_size = 12
+text = "00"
+scroll_active = false
+
+[node name="Seed4" type="Sprite2D" parent="." unique_id=260440899]
+visible = false
+position = Vector2(108, 91)
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(48, 56, 8, 8)
+
+[node name="ClickArea" type="Polygon2D" parent="Seed4" unique_id=266700612]
+visible = false
+position = Vector2(-7, -5)
+color = Color(0, 1, 0, 0.19607843)
+polygon = PackedVector2Array(2, 0, 24, 0, 24, 10, 2, 10, 2, 5)
+
+[node name="SeedAmount4" type="RichTextLabel" parent="." unique_id=1277463113]
+visible = false
+offset_left = 113.0
+offset_top = 84.0
+offset_right = 165.0
+offset_bottom = 96.0
+theme_override_fonts/normal_font = ExtResource("1_n24sb")
+theme_override_font_sizes/normal_font_size = 12
+text = "00"
+scroll_active = false
+
+[node name="ClickHereIndicator" type="Sprite2D" parent="." unique_id=1002132938]
+position = Vector2(41, 78)
+rotation = -3.1415927
+texture = ExtResource("3_d3mk0")
+region_enabled = true
+region_rect = Rect2(64, 64, 16, 16)
+script = ExtResource("4_ephr2")

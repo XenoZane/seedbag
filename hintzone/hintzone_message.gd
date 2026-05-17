@@ -20,6 +20,10 @@ func _ready() -> void:
 				break
 		$Message.text = $Message.text.replace("<garden>", "[color=#ff0000]%s[/color]" % first_incomplete_level_in_chapter)
 
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("left"):
+		Manager.exit_hint_zone()
+
 func _on_back_button_pressed() -> void:
 	Manager.exit_hint_zone()
 	
