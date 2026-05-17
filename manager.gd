@@ -129,6 +129,9 @@ var chapters := [
 	# transition....
 	[
 		"res://gardens/ch7/text1.tscn",
+		"res://gardens/ch7/text2.tscn",
+		"res://gardens/ch7/text3.tscn",
+		"res://gardens/ch7/text4.tscn",
 	],
 ]
 # TODO: maybe shouldn't update these until we actually complete a load... idk
@@ -252,6 +255,9 @@ func prev_level() -> void:
 		
 
 func next_level(bypass_hintzone: bool = false) -> void:
+	if on_last_level():
+		return
+	
 	MusicManager.sfx_click_button_positive()
 	if current_level_in_chapter < chapters[current_chapter].size() - 1:
 		currently_loading_level = current_level_in_chapter + 1
