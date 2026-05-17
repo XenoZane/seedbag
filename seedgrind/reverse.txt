@@ -1,0 +1,7 @@
+: glory N
+:: glory 0
+rs r .gr
+lsrssrl 
+lllllllg
+lg.   g.
+r      r

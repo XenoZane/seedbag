@@ -1,5 +1,6 @@
 import argparse
 from dataclasses import dataclass
+import random
 
 import z3
 
@@ -238,6 +239,7 @@ def solve(puzzle: Puzzle) -> list[dict]:
 def main():
     parser = argparse.ArgumentParser(prog="seedgrind.py")
     parser.add_argument("puzzle_file")
+    parser.add_argument("-r", "--reverse", action='store_true')
     # parser.add_argument("-n", "--name", help="specific puzzle from file to test")
 
     args = parser.parse_args()
@@ -313,16 +315,96 @@ def main():
         )
     )
 
+    if args.reverse:
+        print("reversing")
+        solved_grid = puzzles[0].grid
+        rng = random.Random()
+        h = len(solved_grid)
+        w = len(solved_grid[0])
+
+        # start with everything fixed, nothing to place
+        grid = [row[:] for row in solved_grid]
+        counts: dict[int, int] = {}
+
+        # collect all flower positions, shuffle for variety
+        flower_positions = [
+            (x, y) for y in range(h) for x in range(w)
+            if grid[y][x] in FLOWERS
+        ]
+        rng.shuffle(flower_positions)
+
+        erased = 0
+        for x, y in flower_positions:
+            flower = grid[y][x]
+
+            # tentatively erase
+            grid[y][x] = SOIL
+            counts[flower] = counts.get(flower, 0) + 1
+
+            puzzle = Puzzle(
+                name=name,
+                counts=counts.copy(),
+                grid=[row[:] for row in grid],
+                width=w,
+                height=h,
+            )
+
+            solutions = solve(puzzle)
+
+            if len(solutions) == 1:
+                erased += 1
+                print(f"  erased {TILE_TO_CHAR.get(flower, '?')} at ({x},{y}) — {erased} erased, still unique")
+            else:
+                # not unique, undo
+                grid[y][x] = flower
+                counts[flower] -= 1
+                if counts[flower] == 0:
+                    del counts[flower]
+                print(f"  kept {TILE_TO_CHAR.get(flower, '?')} at ({x},{y}) — {len(solutions)} solutions if removed")
+
+        if not counts:
+            print("couldn't erase anything — degenerate grid?")
+            return None
+
+        lines = [f": {name}"]
+        for tile, count in puzzle.counts.items():
+            lines.append(f":: {TILE_TO_NAME[tile]} {count}")
+        for row in puzzle.grid:
+            lines.append("".join(TILE_TO_CHAR[tile] for tile in row))
+        for line in lines:
+            print(line)
+
+        
+    uniques = []
     failures = []
     for puzzle in puzzles:
         solutions = solve(puzzle)
         if len(solutions) == 1:
             print(f"{GREEN}[OK] {puzzle.name}: unique solution found.{RESET}")
+            uniques.append((puzzle, solutions))
         elif len(solutions) == 0:
             print(f"{RED}[ERR] {puzzle.name}: no solution found.{RESET}")
         else:
             print(f"{RED}[ERR] {puzzle.name}: {len(solutions)} solutions found.{RESET}")
             failures.append((puzzle, solutions))
+
+    if uniques:
+        with open('unique.txt', 'w') as f:
+            for puzzle, solns in uniques:
+                lines = [f": {puzzle.name}"]
+                for tile, count in puzzle.counts.items():
+                    lines.append(f":: {TILE_TO_NAME[tile]} {count}")
+                for row in puzzle.grid:
+                    lines.append("".join(TILE_TO_CHAR[tile] for tile in row))
+                header = "\n".join(lines)
+                f.write(header + '\n')
+                for idx, soln in enumerate(solns):
+                    f.write(f"# --- solution {idx + 1} ---")
+                    for y in range(puzzle.height):
+                        line = "".join(TILE_TO_CHAR[soln[(x, y)]] for x in range(puzzle.width))
+                        f.write(f"# {line}\n")
+                f.write('\n')
+        print("wrote unique solutions to unique.txt")
 
     if failures:
         with open('nonunique.txt', 'w') as f:
