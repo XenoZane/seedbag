@@ -22,7 +22,7 @@ theme_override_constants/line_separation = 0
 theme_override_fonts/normal_font = ExtResource("2_3xdsx")
 theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
-text = "but I DO 'member two important facts that will help you:"
+text = "but I DO 'member three important facts that will help you:"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
@@ -33,7 +33,7 @@ position = Vector2(224, 160)
 scale = Vector2(2, 2)
 texture = ExtResource("3_3xdsx")
 region_enabled = true
-region_rect = Rect2(96, 32, 32, 32)
+region_rect = Rect2(160, 32, 32, 32)
 
 [node name="Bubble" type="Sprite2D" parent="." unique_id=1045641803]
 position = Vector2(178, 146)

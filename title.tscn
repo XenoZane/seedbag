@@ -6,6 +6,43 @@
 [ext_resource type="Script" uid="uid://smcf6bcfwhh5" path="res://music_slider.gd" id="3_mom7w"]
 [ext_resource type="Texture2D" uid="uid://cmtscqj0hgqyn" path="res://icon_sfx.png" id="4_mom7w"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_mom7w"]
+atlas = ExtResource("4_mom7w")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="DPITexture" id="DPITexture_7lgly"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"4\" height=\"8\"><path fill=\"#fff\" fill-opacity=\".25\" d=\"M1 0h2v16H1z\"/></svg>
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mom7w"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7lgly"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0824t"]
+atlas = ExtResource("4_mom7w")
+region = Rect2(48, 0, 48, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0824t"]
+texture = SubResource("AtlasTexture_0824t")
+texture_margin_left = 8.0
+texture_margin_top = 4.0
+texture_margin_right = 8.0
+texture_margin_bottom = 4.0
+expand_margin_top = 4.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="Theme" id="Theme_16uvt"]
+HSlider/constants/center_grabber = 0
+HSlider/constants/grabber_offset = 0
+HSlider/constants/tick_offset = 0
+HSlider/icons/grabber = SubResource("AtlasTexture_mom7w")
+HSlider/icons/grabber_disabled = SubResource("AtlasTexture_mom7w")
+HSlider/icons/grabber_highlight = SubResource("AtlasTexture_mom7w")
+HSlider/icons/tick = SubResource("DPITexture_7lgly")
+HSlider/styles/grabber_area = SubResource("StyleBoxEmpty_mom7w")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxEmpty_7lgly")
+HSlider/styles/slider = SubResource("StyleBoxTexture_0824t")
+
 [node name="Root" type="Node2D" unique_id=881326934]
 script = ExtResource("1_k86xs")
 
@@ -67,6 +104,7 @@ offset_left = 73.0
 offset_top = 146.0
 offset_right = 208.0
 offset_bottom = 162.0
+theme = SubResource("Theme_16uvt")
 max_value = 1.0
 step = 0.01
 value = 0.75
@@ -84,6 +122,7 @@ offset_left = 73.0
 offset_top = 165.0
 offset_right = 208.0
 offset_bottom = 181.0
+theme = SubResource("Theme_16uvt")
 max_value = 1.0
 step = 0.01
 value = 0.75
@@ -96,5 +135,7 @@ texture = ExtResource("4_mom7w")
 region_enabled = true
 region_rect = Rect2(0, 0, 16, 16)
 
+[connection signal="mouse_entered" from="MusicSlider" to="MusicSlider" method="_on_mouse_entered"]
 [connection signal="value_changed" from="MusicSlider" to="MusicSlider" method="_on_value_changed"]
+[connection signal="mouse_entered" from="SfxSlider" to="SfxSlider" method="_on_mouse_entered"]
 [connection signal="value_changed" from="SfxSlider" to="SfxSlider" method="_on_value_changed"]

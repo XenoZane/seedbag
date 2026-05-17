@@ -22,7 +22,7 @@ func _ready() -> void:
 		$Message.text = $Message.text.replace("<garden>", "[color=#ff0000]%s[/color]" % first_incomplete_level_in_chapter)
 
 func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("left"):
+	if Input.is_action_just_pressed("left") and my_behavior != HintzoneBehavior.ALL_CORRECT:
 		Manager.exit_hint_zone()
 
 func _on_back_button_pressed() -> void:
@@ -51,6 +51,7 @@ func _on_check_button_pressed() -> void:
 			get_tree().change_scene_to_file("res://hintzone/the_hint.tscn")
 		HintzoneBehavior.ALL_CORRECT:
 			MusicManager.sfx_click_button_positive()
+			Manager.current_level_in_chapter = Manager.chapters[Manager.current_chapter].size() - 1
 			Manager.next_level(true)
 
 

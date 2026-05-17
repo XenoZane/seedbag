@@ -274,11 +274,7 @@ func undo() -> void:
 func reset() -> void:
 	world_tiles.tile_map_data = initial_world_state
 	
-	var play_sound: bool = false
-	for flower in planted_amounts.keys():
-		if planted_amounts[flower] > 0: play_sound = true
-		break
-	if play_sound: MusicManager.sfx_reset()
+	MusicManager.sfx_reset()
 	
 	for flower in planted_amounts.keys():
 		planted_amounts[flower] = 0

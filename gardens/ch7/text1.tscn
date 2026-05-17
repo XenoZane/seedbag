@@ -21,9 +21,9 @@ offset_bottom = 192.0
 theme_override_fonts/normal_font = ExtResource("2_1ttwt")
 theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
-text = "thanks for all the help!
+text = "you solved all my gardens!
 
-maybe I'll have more for ya later!"
+thanks for all the help!"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1

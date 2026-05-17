@@ -21,7 +21,7 @@ offset_bottom = 192.0
 theme_override_fonts/normal_font = ExtResource("2_v5t2i")
 theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
-text = "first things first I 'preciate yer help tending to these here enigmatic gardens.
+text = "first things first I 'preciate yer help tendin' to these here puzzlin' gardens.
 
 ya see we got no ordinary flowers here.  here we grow a picky sort of flower that will [shake rate=30.0 level=1 connected=1]DIE[/shake] at the end of the season if not planted carefully."
 fit_content = true

@@ -44,3 +44,12 @@ func sfx_try_plant_fail() -> void:
 
 func sfx_reset() -> void:
 	$SFX_Reset.play()
+
+
+var slider_last_update_time: int = 0
+var slider_timeout_msec: int = 200
+
+func maybe_play_slider_update_sound() -> void:
+	if Time.get_ticks_msec() > slider_last_update_time + slider_timeout_msec:
+		$SliderUpdated.play()
+		slider_last_update_time = Time.get_ticks_msec()
