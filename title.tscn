@@ -78,9 +78,10 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="NewGame" type="RichTextLabel" parent="." unique_id=1209290940]
-offset_top = 82.0
-offset_right = 256.0
-offset_bottom = 114.0
+offset_left = 71.0
+offset_top = 92.0
+offset_right = 182.0
+offset_bottom = 106.0
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
 text = "click here to play."
