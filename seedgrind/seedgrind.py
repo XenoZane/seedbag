@@ -54,6 +54,20 @@ class Puzzle:
     height: int
 
 
+def puzzle_to_str(puzzle: Puzzle, solutions: list[dict] | None = None) -> str:
+    lines = [f": {puzzle.name}"]
+    for tile, count in puzzle.counts.items():
+        lines.append(f":: {TILE_TO_NAME[tile]} {count}")
+    for row in puzzle.grid:
+        lines.append("".join(TILE_TO_CHAR[tile] for tile in row))
+    if solutions:
+        for i, soln in enumerate(solutions):
+            lines.append(f"# --- solution {i+1} ---")
+            for y in range(puzzle.height):
+                lines.append("".join(TILE_TO_CHAR[soln[(x, y)]] for x in range(puzzle.width)))
+    return '\n'.join(lines)
+
+
 def solve(puzzle: Puzzle) -> list[dict]:
     grid = puzzle.grid
     w, h = puzzle.width, puzzle.height
@@ -366,15 +380,8 @@ def main():
             print("couldn't erase anything — degenerate grid?")
             return None
 
-        lines = [f": {name}"]
-        for tile, count in puzzle.counts.items():
-            lines.append(f":: {TILE_TO_NAME[tile]} {count}")
-        for row in puzzle.grid:
-            lines.append("".join(TILE_TO_CHAR[tile] for tile in row))
-        for line in lines:
-            print(line)
-
-        
+        print(puzzle_to_str(puzzle))
+       
     uniques = []
     failures = []
     for puzzle in puzzles:
@@ -391,38 +398,17 @@ def main():
     if uniques:
         with open('unique.txt', 'w') as f:
             for puzzle, solns in uniques:
-                lines = [f": {puzzle.name}"]
-                for tile, count in puzzle.counts.items():
-                    lines.append(f":: {TILE_TO_NAME[tile]} {count}")
-                for row in puzzle.grid:
-                    lines.append("".join(TILE_TO_CHAR[tile] for tile in row))
-                header = "\n".join(lines)
-                f.write(header + '\n')
-                for idx, soln in enumerate(solns):
-                    f.write(f"# --- solution {idx + 1} ---")
-                    for y in range(puzzle.height):
-                        line = "".join(TILE_TO_CHAR[soln[(x, y)]] for x in range(puzzle.width))
-                        f.write(f"# {line}\n")
+                f.write(puzzle_to_str(puzzle, solns))
                 f.write('\n')
         print("wrote unique solutions to unique.txt")
 
     if failures:
         with open('nonunique.txt', 'w') as f:
             for puzzle, solns in failures:
-                lines = [f": {puzzle.name}"]
-                for tile, count in puzzle.counts.items():
-                    lines.append(f":: {TILE_TO_NAME[tile]} {count}")
-                for row in puzzle.grid:
-                    lines.append("".join(TILE_TO_CHAR[tile] for tile in row))
-                header = "\n".join(lines)
-                f.write(header + '\n')
-                for idx, soln in enumerate(solns):
-                    f.write(f"# --- solution {idx + 1} ---")
-                    for y in range(puzzle.height):
-                        line = "".join(TILE_TO_CHAR[soln[(x, y)]] for x in range(puzzle.width))
-                        f.write(f"# {line}\n")
+                f.write(puzzle_to_str(puzzle, solns))
                 f.write('\n')
         print("wrote nonunique solutions to nonunique.txt")
+
 
 if __name__ == "__main__":
     main()

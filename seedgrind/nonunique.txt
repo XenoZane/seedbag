@@ -1,21 +1,53 @@
-: glory N
-:: lavender 10
-:: sunflower 4
+: glory oops
+:: lavender 9
 :: rose 5
+:: sunflower 3
 :: glory 3
-r. . ...
-.....r. 
+        
+r. . .l.
+..r.s.. 
 ........
-.g.   ..
+...  ..g
 .      .
-# --- solution 1 ---# rs r .gr
-# lsrssrl 
-# lllllllg
-# lg.   g.
-# r      r
-# --- solution 2 ---# rg r ssr
-# g.rllrl 
-# lllllllr
-# gg.   ss
-# .      r
-
+# --- solution 1 ---
+        
+rs . rlr
+lsrsslr 
+llllll.g
+lg.  rgg
+r      .
+# --- solution 2 ---
+        
+rs . rlr
+lsrsslg 
+llllll.g
+l.r  rgg
+r      .
+# --- solution 3 ---
+        
+rg . rlr
+l.rsslr 
+llllll.g
+lss  rgg
+r      .
+# --- solution 4 ---
+        
+r. . rlr
+lgrsslr 
+llllll.g
+lss  rgg
+r      .
+# --- solution 5 ---
+        
+rs . rlr
+lsrsslr 
+llllll.g
+l.g  rgg
+r      .
+# --- solution 6 ---
+        
+rs . rlr
+lsrsslg 
+llllll.g
+rlr  rgg
+.      .

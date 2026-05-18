@@ -1,13 +1,479 @@
+: garden 1
+:: rose 2
+...
+# --- solution 1 ---
+r.r
+: garden 2
+:: rose 1
+   
+  .
+r..
+  .
+# --- solution 1 ---
+   
+  .
+r.r
+  .
+: garden 3
+:: rose 3
+   
+  .
+  .
+...
+# --- solution 1 ---
+   
+  r
+  .
+r.r
+: garden 4
+:: rose 4
+    
+....
+.   
+.   
+   .
+# --- solution 1 ---
+    
+r..r
+.   
+r   
+   r
+: garden 5
+:: sunflower 1
+   
+s..
+# --- solution 1 ---
+   
+ss.
+: garden 6
+:: sunflower 2
+  
+. 
+..
+s 
+. 
+# --- solution 1 ---
+  
+. 
+ss
+s 
+. 
+: garden 7
+:: sunflower 3
+  
+..
+..
+s 
+# --- solution 1 ---
+  
+.s
+ss
+s 
+: garden 7A
+:: sunflower 7
+    
+....
+... 
+..  
+.   
+# --- solution 1 ---
+    
+..ss
+.ss 
+ss  
+s   
+: garden 7B
+:: sunflower 4
+  
+..
+ .
+..
+# --- solution 1 ---
+  
+ss
+ .
+ss
+: garden 8
+:: rose 2
+:: sunflower 2
+    
+....
+# --- solution 1 ---
+    
+rssr
+: garden 9
+:: rose 9
+      
+..... 
+......
+......
+# --- solution 1 ---
+      
+r.r.r 
+.r.r.r
+r.r.r.
+: garden 10
+:: sunflower 12
+       
+    .. 
+  ....s
+  ...  
+s....  
+ ..    
+# --- solution 1 ---
+       
+    ss 
+  ss.ss
+  s.s  
+ss.ss  
+ ss    
+: garden 11
+:: rose 4
+:: sunflower 6
+      
+   .. 
+  .s..
+ ..   
+...   
+# --- solution 1 ---
+      
+   ss 
+  rssr
+ ss   
+rsr   
+: lavender A
+:: rose 2
+:: lavender 1
+   
+...
+# --- solution 1 ---
+   
+rlr
+: lavender B
+:: rose 2
+:: lavender 1
+   
+.. 
+...
+# --- solution 1 ---
+   
+.. 
+rlr
+: lavender C
+:: rose 2
+:: lavender 1
+    
+   .
+   .
+r...
+# --- solution 1 ---
+    
+   r
+   l
+r..r
+: lavender D
+:: rose 2
+:: lavender 2
+    
+   .
+   .
+r...
+# --- solution 1 ---
+    
+   r
+   .
+rllr
+: lavender D_a
+:: lavender 3
+     
+r. .r
+    .
+r...r
+# --- solution 1 ---
+     
+r. .r
+    .
+rlllr
+: lavender E
+:: rose 4
+:: lavender 1
+   
+...
+...
+ . 
+# --- solution 1 ---
+   
+.r.
+rlr
+ r 
+: lavender F
+:: rose 1
+:: sunflower 2
+:: lavender 1
+     
+r....
+# --- solution 1 ---
+     
+rlrss
+: lavender G?
+:: rose 3
+:: sunflower 5
+:: lavender 2
+     
+.....
+.s . 
+ ... 
+# --- solution 1 ---
+     
+srllr
+ss s 
+ rss 
+: lavender H
+:: sunflower 4
+:: lavender 1
+    
+..  
+r..r
+..  
+# --- solution 1 ---
+    
+ss  
+rl.r
+ss  
+: lavender I?
+:: rose 3
+:: sunflower 6
+:: lavender 1
+    
+..  
+..  
+....
+ .. 
+# --- solution 1 ---
+    
+rs  
+ss  
+rlsr
+ ss 
+: lavender J
+:: rose 2
+:: sunflower 5
+:: lavender 4
+    
+ ...
+....
+..  
+ .  
+ .  
+# --- solution 1 ---
+    
+ rss
+slls
+sl  
+ l  
+ r  
+: lavender K
+:: rose 4
+:: lavender 1
+   
+...
+ll.
+...
+# --- solution 1 ---
+   
+r.r
+lll
+r.r
+: lavender L?
+:: rose 3
+:: sunflower 2
+:: lavender 9
+      
+.  r..
+..... 
+..... 
+   ..s
+   ..s
+# --- solution 1 ---
+      
+r  rlr
+lllll 
+r...l 
+   sls
+   sls
+: lavender M
+:: rose 4
+:: lavender 21
+     
+.....
+.....
+.....
+.....
+.....
+# --- solution 1 ---
+     
+rlllr
+lllll
+lllll
+lllll
+rlllr
+: glory A
+:: glory 1
+     
+r.. r
+# --- solution 1 ---
+     
+rg. r
+: glory B
+:: glory 1
+      
+r.. .r
+# --- solution 1 ---
+      
+rg. .r
+: glory C
+:: rose 3
+     
+  .  
+.rg..
+  .  
+# --- solution 1 ---
+     
+  r  
+.rg.r
+  r  
+: glory D
+:: sunflower 1
+:: glory 2
+    
+..  
+ .s 
+  ..
+# --- solution 1 ---
+    
+.g  
+ ss 
+  g.
+: glory E
+:: sunflower 5
+   
+ ..
+g..
+...
+# --- solution 1 ---
+   
+ ss
+g.s
+ss.
+: glory G
+:: rose 1
+:: glory 2
+   
+r .
+...
+# --- solution 1 ---
+   
+r r
+g.g
+: glory H
+:: glory 2
+    
+....
+# --- solution 1 ---
+    
+.gg.
+: glory H_a
+:: lavender 2
+:: glory 2
+      
+......
+# --- solution 1 ---
+      
+.gllg.
+: glory I
+:: glory 5
+   
+. .
+...
+...
+# --- solution 1 ---
+   
+. .
+ggg
+g.g
+: glory J
+:: glory 11
+    
+.g..
+....
+....
+....
+# --- solution 1 ---
+    
+gg.g
+.ggg
+ggg.
+g.gg
+: glory K
+:: rose 1
+:: lavender 4
+:: glory 2
+    
+r...
+ ...
+ ...
+# --- solution 1 ---
+    
+rllr
+ .l.
+ glg
+: glory L
+:: lavender 8
+:: glory 4
+     
+.. ..
+..l..
+g.l.g
+..l..
+.. ..
+# --- solution 1 ---
+     
+g. .g
+lllll
+g.l.g
+lllll
+g. .g
+: glory M
+:: rose 1
+:: sunflower 3
+:: lavender 2
+:: glory 2
+    
+....
+.rs.
+.lg.
+....
+# --- solution 1 ---
+    
+sls.
+srsg
+.lgl
+.r.g
 : glory N
-:: glory 0
+:: rose 5
+:: sunflower 3
+:: lavender 9
+:: glory 3
+        
+r. . ...
+..r.s.l 
+........
+.g.   ..
+.      .
+# --- solution 1 ---
+        
 rs r .gr
 lsrssrl 
 lllllllg
 lg.   g.
 r      r
-# --- solution 1 ---# rs r .gr
-# lsrssrl 
-# lllllllg
-# lg.   g.
-# r      r
-

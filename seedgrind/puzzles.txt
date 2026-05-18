@@ -275,9 +275,9 @@ g.l.g
 # ...
 
 : glory N
-:: lavender 9
 :: rose 5
 :: sunflower 3
+:: lavender 9
 :: glory 3
 r. . ...
 ..r.s.l 

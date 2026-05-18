@@ -508,7 +508,7 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		for direction in adjacents:
 			var adj_neighbor := world_tiles.get_cell_atlas_coords(coords + direction)
 			if is_rose(adj_neighbor):
-				print("[RULE VIOLATION]: rose has adjacent rose.")
+				#print("[RULE VIOLATION]: rose has adjacent rose.")
 				return false
 			
 		# 2. ensure rose exists on horz or vert. axis, unblocked by walls.
@@ -532,7 +532,7 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 					found_any_rose = true
 					break
 		if not found_any_rose:
-			print("[RULE VIOLATION]: rose has no roses in line of sight.")
+			#print("[RULE VIOLATION]: rose has no roses in line of sight.")
 			return false
 
 	elif is_sunflower(atlas):
@@ -540,20 +540,20 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		var left_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.LEFT)
 		var right_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.RIGHT)
 		if is_sunflower(left_tile) and is_sunflower(right_tile):
-			print("[RULE VIOLATION]: white flower is in a horizontal line of 3+ white flowers.")
+			#print("[RULE VIOLATION]: white flower is in a horizontal line of 3+ white flowers.")
 			return false
 			
 		var up_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.UP)
 		var down_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.DOWN)
 		if is_sunflower(up_tile) and is_sunflower(down_tile):
-			print("[RULE VIOLATION]: white flower is in a vertical line of 3+ white flowers.")
+			#print("[RULE VIOLATION]: white flower is in a vertical line of 3+ white flowers.")
 			return false
 		
 		if not is_sunflower(up_tile) \
 			and not is_sunflower(down_tile) \
 			and not is_sunflower(left_tile) \
 			and not is_sunflower(right_tile):
-			print("[RULE VIOLATION]: sunflower has no neighbors.")
+			#print("[RULE VIOLATION]: sunflower has no neighbors.")
 			return false
 
 	elif is_lavender(atlas):
@@ -565,7 +565,7 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		if check_lavender_line(coords, vert_line):
 			return true
 		
-		print("[RULE VIOLATION]: lavender at %s is not an interior point in a valid line." % coords)
+		#print("[RULE VIOLATION]: lavender at %s is not an interior point in a valid line." % coords)
 		#world_tiles.set_cell(coords, 0, WALL_ATLAS)
 		return false
 	
@@ -582,8 +582,8 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 			if is_flower(check_atlas): found_flower = true
 			if check_atlas == SOIL_ATLAS: found_soil = true
 		
-		if !found_soil: print("[RULE VIOLATION]: glory is not adjacent to an empty soil.")
-		if !found_flower: print("[RULE VIOLATION]: glory is not adjacent to a flower.")
+		#if !found_soil: print("[RULE VIOLATION]: glory is not adjacent to an empty soil.")
+		#if !found_flower: print("[RULE VIOLATION]: glory is not adjacent to a flower.")
 		
 		return found_soil and found_flower
 	
