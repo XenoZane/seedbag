@@ -132,6 +132,7 @@ var chapters := [
 		"res://gardens/ch7/text2.tscn",
 		"res://gardens/ch7/text3.tscn",
 		"res://gardens/ch7/text4.tscn",
+		"res://gardens/ch7/text5.tscn",
 	],
 ]
 # TODO: maybe shouldn't update these until we actually complete a load... idk

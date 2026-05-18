@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/wild jam v3.ogg-a58bc0ac650403a85e51f772b7c1a
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
