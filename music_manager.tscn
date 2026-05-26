@@ -35,6 +35,7 @@ script = ExtResource("1_rjr7q")
 stream = ExtResource("2_kyyes")
 autoplay = true
 bus = &"Music"
+playback_type = 2
 
 [node name="SFX_PlantRose" type="AudioStreamPlayer" parent="." unique_id=1582539632]
 stream = ExtResource("3_6bu3j")
@@ -47,12 +48,12 @@ volume_db = -3.0
 bus = &"SFX"
 
 [node name="SFX_PlantLavender" type="AudioStreamPlayer" parent="." unique_id=651774392]
-stream = ExtResource("5_kyyes")
+stream = ExtResource("6_22gu4")
+volume_db = -4.0
 bus = &"SFX"
 
 [node name="SFX_PlantGlory" type="AudioStreamPlayer" parent="." unique_id=1242357693]
-stream = ExtResource("6_22gu4")
-volume_db = -7.0
+stream = ExtResource("5_kyyes")
 bus = &"SFX"
 
 [node name="SFX_RemoveFlower" type="AudioStreamPlayer" parent="." unique_id=635588421]

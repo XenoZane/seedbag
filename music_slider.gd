@@ -11,7 +11,12 @@ func _update_icon_visuals() -> void:
 		$Sprite2D.region_rect.position.x = 0
 
 func _ready() -> void:
-	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index(bus_name), value)
+	if FileAccess.file_exists("user://savegame.save"):
+		value_changed.disconnect(_on_value_changed)
+		value = AudioServer.get_bus_volume_linear(AudioServer.get_bus_index(bus_name))
+		value_changed.connect(_on_value_changed)
+	else:
+		AudioServer.set_bus_volume_linear(AudioServer.get_bus_index(bus_name), value)
 	_update_icon_visuals()
 
 func _process(delta: float) -> void:
@@ -29,3 +34,7 @@ func _on_value_changed(value: float) -> void:
 
 func _on_mouse_entered() -> void:
 	MusicManager.sfx_hover_button()
+
+
+func _on_drag_ended(value_changed: bool) -> void:
+	Manager.save_game()

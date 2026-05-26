@@ -1,5 +1,7 @@
 class_name Garden extends Node2D
 
+static var should_print_rules: bool = false
+
 @onready var nextbar: Nextbar
 
 const REPEAY_DELAY: float = 0.2
@@ -131,7 +133,7 @@ const TOOLBAR_POSITION: Vector2 = Vector2(-128, -96)
 const FIRST_TOOL_POSITION: Vector2 = Vector2(-44, 86)
 const TILEMAP_SCALE: Vector2 = Vector2(2.0, 2.0)
 
-@export var level_name: String = "change me"
+var level_name: String = "change me"
 
 # stuff that is initialized dynamically on ready.
 var toolbar: Toolbar
@@ -188,6 +190,7 @@ func _ready() -> void:
 	world_tiles = $WorldTiles
 	initial_world_state = world_tiles.tile_map_data
 	world_tiles.scale = TILEMAP_SCALE
+	level_name = Manager.current_level_name()
 	
 	# add toolbar
 	toolbar = preload("res://toolbar.tscn").instantiate()
@@ -240,7 +243,7 @@ func _ready() -> void:
 		used_tool_mouse_screen_regions[tool] = TOOL_MOUSE_SCREEN_REGIONS[idx]
 	
 	# load level data
-	var level_data: Manager.LevelData = Manager.load_level(scene_file_path)
+	var level_data: Manager.LevelData = Manager.load_level(level_name)
 	if level_data != null:
 		world_tiles.tile_map_data = level_data.tiles
 		set_current_tool(level_data.current_tool, true)
@@ -379,7 +382,8 @@ func _input(event: InputEvent) -> void:
 		if toolbar.contains_mouse(mousepos):
 			if RESET_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
 				nextbar.set_level_name("reset")
-				grid_indicator_sprite.show()
+				if !Manager.is_mobile_device:
+					grid_indicator_sprite.show()
 				grid_indicator_sprite.global_position = RESET_TOOL_INDICATOR_POSITION
 				if !RESET_TOOL_MOUSE_SCREEN_REGION.has_point(last_mousepos): MusicManager.sfx_hover_button()
 			elif TROWEL_TOOL_MOUSE_SCREEN_REGION.has_point(mousepos):
@@ -406,7 +410,7 @@ func _input(event: InputEvent) -> void:
 			var atlas = world_tiles.get_cell_atlas_coords(tilepos)
 			if atlas == WALL_ATLAS:
 				grid_indicator_sprite.hide()
-			else:
+			elif !Manager.is_mobile_device:
 				grid_indicator_sprite.show()
 	
 	if event is InputEventMouseButton:
@@ -508,7 +512,7 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		for direction in adjacents:
 			var adj_neighbor := world_tiles.get_cell_atlas_coords(coords + direction)
 			if is_rose(adj_neighbor):
-				#print("[RULE VIOLATION]: rose has adjacent rose.")
+				if should_print_rules: print("[RULE VIOLATION]: rose has adjacent rose.")
 				return false
 			
 		# 2. ensure rose exists on horz or vert. axis, unblocked by walls.
@@ -532,7 +536,7 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 					found_any_rose = true
 					break
 		if not found_any_rose:
-			#print("[RULE VIOLATION]: rose has no roses in line of sight.")
+			if should_print_rules: print("[RULE VIOLATION]: rose has no roses in line of sight.")
 			return false
 
 	elif is_sunflower(atlas):
@@ -540,20 +544,20 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		var left_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.LEFT)
 		var right_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.RIGHT)
 		if is_sunflower(left_tile) and is_sunflower(right_tile):
-			#print("[RULE VIOLATION]: white flower is in a horizontal line of 3+ white flowers.")
+			if should_print_rules: print("[RULE VIOLATION]: white flower is in a horizontal line of 3+ white flowers.")
 			return false
 			
 		var up_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.UP)
 		var down_tile := world_tiles.get_cell_atlas_coords(coords + Vector2i.DOWN)
 		if is_sunflower(up_tile) and is_sunflower(down_tile):
-			#print("[RULE VIOLATION]: white flower is in a vertical line of 3+ white flowers.")
+			if should_print_rules: print("[RULE VIOLATION]: white flower is in a vertical line of 3+ white flowers.")
 			return false
 		
 		if not is_sunflower(up_tile) \
 			and not is_sunflower(down_tile) \
 			and not is_sunflower(left_tile) \
 			and not is_sunflower(right_tile):
-			#print("[RULE VIOLATION]: sunflower has no neighbors.")
+			if should_print_rules: print("[RULE VIOLATION]: sunflower has no neighbors.")
 			return false
 
 	elif is_lavender(atlas):
@@ -565,7 +569,7 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 		if check_lavender_line(coords, vert_line):
 			return true
 		
-		#print("[RULE VIOLATION]: lavender at %s is not an interior point in a valid line." % coords)
+		if should_print_rules: print("[RULE VIOLATION]: lavender at %s is not an interior point in a valid line." % coords)
 		#world_tiles.set_cell(coords, 0, WALL_ATLAS)
 		return false
 	
@@ -582,8 +586,8 @@ func tile_follows_rule(atlas: Vector2i, coords: Vector2i) -> bool:
 			if is_flower(check_atlas): found_flower = true
 			if check_atlas == SOIL_ATLAS: found_soil = true
 		
-		#if !found_soil: print("[RULE VIOLATION]: glory is not adjacent to an empty soil.")
-		#if !found_flower: print("[RULE VIOLATION]: glory is not adjacent to a flower.")
+		if !found_soil: if should_print_rules: print("[RULE VIOLATION]: glory is not adjacent to an empty soil.")
+		if !found_flower: if should_print_rules: print("[RULE VIOLATION]: glory is not adjacent to a flower.")
 		
 		return found_soil and found_flower
 	

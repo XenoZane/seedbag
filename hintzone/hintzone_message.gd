@@ -14,9 +14,9 @@ func _ready() -> void:
 	if my_behavior == HintzoneBehavior.IS_HINT:
 		var first_incomplete_level_in_chapter: String = "???"
 		for idx in Manager.chapters[Manager.current_chapter].size():
-			var path: String = Manager.chapters[Manager.current_chapter][idx]
-			if not Manager.level_saves[path].is_solved:
-				first_incomplete_level_in_chapter = Manager.level_saves[path].level_name
+			var level_name: String = Manager.chapters[Manager.current_chapter].keys()[idx]
+			if not Manager.level_saves[level_name].is_solved:
+				first_incomplete_level_in_chapter = Manager.level_saves[level_name].level_name
 				first_incomplete_level_idx = idx
 				break
 		$Message.text = $Message.text.replace("<garden>", "[color=#ff0000]%s[/color]" % first_incomplete_level_in_chapter)
@@ -40,6 +40,7 @@ func _on_check_button_pressed() -> void:
 		HintzoneBehavior.IS_HINT:
 			pass
 		HintzoneBehavior.CHECK_CHAPTER:
+			Manager.save_game()
 			if Manager.current_chapter_cleared():
 				get_tree().change_scene_to_file("res://hintzone/all_correct.tscn")
 				MusicManager.sfx_check_puzzle_correct()

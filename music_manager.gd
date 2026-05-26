@@ -1,50 +1,60 @@
 extends Node
 
+var do_repeat_sound: bool = true
+
+func _ready() -> void:
+	pass
+	#if OS.has_feature("wasm"):
+		#do_repeat_sound = false
+
 func sfx_plant_rose() -> void:
-	$SFX_PlantRose.play()
+	play_sfx($SFX_PlantRose)
 
 func sfx_plant_sunny() -> void:
-	$SFX_PlantSunny.play()
+	play_sfx($SFX_PlantSunny)
 
 func sfx_plant_lavender() -> void:
-	$SFX_PlantLavender.play()
+	play_sfx($SFX_PlantLavender)
 
 func sfx_plant_glory() -> void:
-	$SFX_PlantGlory.play()
+	play_sfx($SFX_PlantGlory)
 
 func sfx_remove_flower() -> void:
-	$SFX_RemoveFlower.play()
+	play_sfx($SFX_RemoveFlower)
 
 func sfx_hover_button() -> void:
-	$SFX_HoverButton.play()
+	play_sfx($SFX_HoverButton)
 
 func sfx_click_button_neutral() -> void:
-	$SFX_ClickButtonNeutral.play()
+	play_sfx($SFX_ClickButtonNeutral)
 
 func sfx_click_button_positive() -> void:
-	$SFX_ClickButtonPositive.play()
+	play_sfx($SFX_ClickButtonPositive)
 
 func sfx_click_button_negative() -> void:
-	$SFX_ClickButtonNegative.play()
+	play_sfx($SFX_ClickButtonNegative)
 
 func sfx_check_puzzle_correct() -> void:
-	$SFX_CheckPuzzleCorrect.play()
+	play_sfx($SFX_CheckPuzzleCorrect)
 
 func sfx_check_puzzle_wrong() -> void:
-	$SFX_CheckPuzzleWrong.play()
+	play_sfx($SFX_CheckPuzzleWrong)
 
 func sfx_dialog_advance() -> void:
-	$SFX_DialogAdvance.play()
+	play_sfx($SFX_DialogAdvance)
 
 func sfx_switch_tool() -> void:
-	$SFX_SwitchTool.play()
+	play_sfx($SFX_SwitchTool)
 
 func sfx_try_plant_fail() -> void:
-	$SFX_TryPlantFail.play()
+	play_sfx($SFX_TryPlantFail)
 
 func sfx_reset() -> void:
-	$SFX_Reset.play()
+	play_sfx($SFX_Reset)
 
+func play_sfx(sfx_node: AudioStreamPlayer) -> void:
+	if do_repeat_sound or !sfx_node.playing:
+		sfx_node.play()
 
 var slider_last_update_time: int = 0
 var slider_timeout_msec: int = 200

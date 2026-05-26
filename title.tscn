@@ -5,7 +5,22 @@
 [ext_resource type="Texture2D" uid="uid://3cr1mawgvctn" path="res://icon_music.png" id="3_3xoar"]
 [ext_resource type="Texture2D" uid="uid://blq6fm87qo0o2" path="res://clicktoplay.png" id="3_7lgly"]
 [ext_resource type="Script" uid="uid://smcf6bcfwhh5" path="res://music_slider.gd" id="3_mom7w"]
+[ext_resource type="Texture2D" uid="uid://djp1cwjrrsagi" path="res://clicktoresume.png" id="4_lx2ly"]
 [ext_resource type="Texture2D" uid="uid://cmtscqj0hgqyn" path="res://icon_sfx.png" id="4_mom7w"]
+[ext_resource type="Texture2D" uid="uid://q0uqcjucnxpc" path="res://clicktodelete1.png" id="5_jil77"]
+[ext_resource type="Texture2D" uid="uid://dmkr1eqb3mak6" path="res://clicktodelete2.png" id="6_16uvt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lx2ly"]
+size = Vector2(115, 18)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jil77"]
+size = Vector2(127, 18)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_16uvt"]
+size = Vector2(101, 14)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_upcoo"]
+size = Vector2(87, 14)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mom7w"]
 atlas = ExtResource("4_mom7w")
@@ -50,12 +65,14 @@ script = ExtResource("1_k86xs")
 [node name="ColorRect" type="ColorRect" parent="." unique_id=579748507]
 offset_right = 256.0
 offset_bottom = 192.0
+mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
 [node name="Title" type="RichTextLabel" parent="." unique_id=1829885548]
 offset_top = 28.0
 offset_right = 256.0
 offset_bottom = 47.0
+mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
 text = "puzzlin' gardens!"
@@ -68,6 +85,7 @@ vertical_alignment = 1
 offset_top = 54.0
 offset_right = 256.0
 offset_bottom = 73.0
+mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
 text = "by zane and sam
@@ -77,28 +95,64 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="NewGame" type="RichTextLabel" parent="." unique_id=1209290940]
-offset_left = 71.0
-offset_top = 92.0
-offset_right = 182.0
-offset_bottom = 106.0
-theme_override_fonts/normal_font = ExtResource("1_0byv1")
-theme_override_font_sizes/normal_font_size = 12
-text = "click here to play."
-fit_content = true
-scroll_active = false
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="NoSaveButtons" type="Node2D" parent="." unique_id=1011970104]
 
-[node name="Clicktoplay" type="Sprite2D" parent="." unique_id=1180454250]
+[node name="Clicktoplay" type="Sprite2D" parent="NoSaveButtons" unique_id=1180454250]
 position = Vector2(71, 92)
 texture = ExtResource("3_7lgly")
 centered = false
+
+[node name="PlayButton" type="Area2D" parent="NoSaveButtons/Clicktoplay" unique_id=335791687]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NoSaveButtons/Clicktoplay/PlayButton" unique_id=1536288468]
+position = Vector2(55.5, 7)
+shape = SubResource("RectangleShape2D_lx2ly")
+
+[node name="HasSaveButtons" type="Node2D" parent="." unique_id=1575078500]
+visible = false
+
+[node name="Clicktoresume" type="Sprite2D" parent="HasSaveButtons" unique_id=1385783683]
+position = Vector2(65, 86)
+texture = ExtResource("4_lx2ly")
+centered = false
+
+[node name="ResumeButton" type="Area2D" parent="HasSaveButtons/Clicktoresume" unique_id=1569716729]
+position = Vector2(6, 6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HasSaveButtons/Clicktoresume/ResumeButton" unique_id=1713155151]
+position = Vector2(55.5, 1)
+shape = SubResource("RectangleShape2D_jil77")
+
+[node name="Clicktodelete1" type="Sprite2D" parent="HasSaveButtons" unique_id=1028403050]
+position = Vector2(76, 105)
+texture = ExtResource("5_jil77")
+centered = false
+
+[node name="Delete1Button" type="Area2D" parent="HasSaveButtons/Clicktodelete1" unique_id=376655274]
+position = Vector2(-5, -13)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HasSaveButtons/Clicktodelete1/Delete1Button" unique_id=1420285693]
+position = Vector2(55.5, 20)
+shape = SubResource("RectangleShape2D_16uvt")
+
+[node name="Clicktodelete2" type="Sprite2D" parent="HasSaveButtons" unique_id=347200181]
+visible = false
+position = Vector2(83, 105)
+texture = ExtResource("6_16uvt")
+centered = false
+
+[node name="Delete2Button" type="Area2D" parent="HasSaveButtons/Clicktodelete2" unique_id=212652833]
+position = Vector2(-12, -13)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HasSaveButtons/Clicktodelete2/Delete2Button" unique_id=2106876606]
+position = Vector2(55.5, 20)
+shape = SubResource("RectangleShape2D_upcoo")
 
 [node name="Instructions" type="RichTextLabel" parent="." unique_id=1139385926]
 offset_top = 111.0
 offset_right = 256.0
 offset_bottom = 147.0
+mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("1_0byv1")
 theme_override_font_sizes/normal_font_size = 12
 text = "control with mouse/touch"
@@ -112,6 +166,7 @@ offset_left = 73.0
 offset_top = 146.0
 offset_right = 208.0
 offset_bottom = 162.0
+mouse_default_cursor_shape = 2
 theme = SubResource("Theme_16uvt")
 max_value = 1.0
 step = 0.01
@@ -130,6 +185,7 @@ offset_left = 73.0
 offset_top = 165.0
 offset_right = 208.0
 offset_bottom = 181.0
+mouse_default_cursor_shape = 2
 theme = SubResource("Theme_16uvt")
 max_value = 1.0
 step = 0.01
@@ -143,7 +199,21 @@ texture = ExtResource("4_mom7w")
 region_enabled = true
 region_rect = Rect2(0, 0, 16, 16)
 
+[connection signal="input_event" from="NoSaveButtons/Clicktoplay/PlayButton" to="." method="_on_play_button_input_event"]
+[connection signal="mouse_entered" from="NoSaveButtons/Clicktoplay/PlayButton" to="." method="_on_button_mouse_entered"]
+[connection signal="mouse_exited" from="NoSaveButtons/Clicktoplay/PlayButton" to="." method="_on_button_mouse_exited"]
+[connection signal="input_event" from="HasSaveButtons/Clicktoresume/ResumeButton" to="." method="_on_resume_button_input_event"]
+[connection signal="mouse_entered" from="HasSaveButtons/Clicktoresume/ResumeButton" to="." method="_on_button_mouse_entered"]
+[connection signal="mouse_exited" from="HasSaveButtons/Clicktoresume/ResumeButton" to="." method="_on_button_mouse_exited"]
+[connection signal="input_event" from="HasSaveButtons/Clicktodelete1/Delete1Button" to="." method="_on_delete_1_button_input_event"]
+[connection signal="mouse_entered" from="HasSaveButtons/Clicktodelete1/Delete1Button" to="." method="_on_button_mouse_entered"]
+[connection signal="mouse_exited" from="HasSaveButtons/Clicktodelete1/Delete1Button" to="." method="_on_button_mouse_exited"]
+[connection signal="input_event" from="HasSaveButtons/Clicktodelete2/Delete2Button" to="." method="_on_delete_2_button_input_event"]
+[connection signal="mouse_entered" from="HasSaveButtons/Clicktodelete2/Delete2Button" to="." method="_on_button_mouse_entered"]
+[connection signal="mouse_exited" from="HasSaveButtons/Clicktodelete2/Delete2Button" to="." method="_on_button_mouse_exited"]
+[connection signal="drag_ended" from="MusicSlider" to="MusicSlider" method="_on_drag_ended"]
 [connection signal="mouse_entered" from="MusicSlider" to="MusicSlider" method="_on_mouse_entered"]
 [connection signal="value_changed" from="MusicSlider" to="MusicSlider" method="_on_value_changed"]
+[connection signal="drag_ended" from="SfxSlider" to="SfxSlider" method="_on_drag_ended"]
 [connection signal="mouse_entered" from="SfxSlider" to="SfxSlider" method="_on_mouse_entered"]
 [connection signal="value_changed" from="SfxSlider" to="SfxSlider" method="_on_value_changed"]
