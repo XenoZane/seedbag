@@ -35,7 +35,6 @@ script = ExtResource("1_rjr7q")
 stream = ExtResource("2_kyyes")
 autoplay = true
 bus = &"Music"
-playback_type = 2
 
 [node name="SFX_PlantRose" type="AudioStreamPlayer" parent="." unique_id=1582539632]
 stream = ExtResource("3_6bu3j")
